@@ -1,0 +1,21 @@
+server :
+  port : 8080
+
+spring :
+  application:
+    name : gatheria
+  config :
+    import : application-secret.yml
+    activate:
+      on-profile : docker
+
+  datasource:
+    url: jdbc:mysql://mysql:3306/gatheria
+    username: root
+    password: 1234
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+logging:
+  level:
+    org.springframework.data.redis: DEBUG
+    org.springframework.boot.autoconfigure.data.redis: DEBUG
