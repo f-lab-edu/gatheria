@@ -10,11 +10,15 @@ spring :
       on-profile : local
 
   datasource:
-    url: jdbc:mysql://mysql:3306/gatheria
+    url: jdbc:mysql://localhost:3306/gatheria
     username: root
     password: 1234
     driver-class-name: com.mysql.cj.jdbc.Driver
 
+  mybatis:
+    mapper-locations: classpath:mapper/*.xml
+    configuration:
+      map-underscore-to-camel-case: true
 
 logging:
   level:

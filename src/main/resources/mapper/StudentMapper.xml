@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gatheria.mapper.StudentMapper">
+
+    <!-- 학생 삽입 -->
+    <insert id="insertStudent">
+        INSERT INTO students (email, password, name, phone, is_active, created_at, updated_at)
+        VALUES (#{email}, #{password}, #{name}, #{phone}, #{isActive}, NOW(), NOW())
+    </insert>
+
+</mapper>
