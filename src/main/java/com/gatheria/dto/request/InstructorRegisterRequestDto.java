@@ -19,12 +19,14 @@ public class InstructorRegisterRequestDto {
     private String phone;
     private String affiliation;
 
-    public BaseMember toBaseMember() {
-        return new BaseMember(email,password,name,phone,false);
-    }
-
     public Instructor toDomain() {
-        BaseMember baseMember = toBaseMember();
-        return new Instructor(baseMember,affiliation);
+        return Instructor.builder()
+                .email(email)
+                .password(password)
+                .name(name)
+                .phone(phone)
+                .affiliation(affiliation)
+                .isActive(false)
+                .build();
     }
 }

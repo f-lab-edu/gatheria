@@ -13,21 +13,13 @@ public class InstructorRegisterResponseDto {
     private final String affiliation;
     private final boolean isActive;
 
-    public InstructorRegisterResponseDto(String email, String name, String phone, String affiliation, boolean isActive) {
-        this.email = email;
-        this.name = name;
-        this.phone = phone;
-        this.affiliation = affiliation;
-        this.isActive = isActive;
-    }
-
-    public static InstructorRegisterResponseDto from (Instructor instructor) {
+    public static InstructorRegisterResponseDto from(Instructor instructor) {
         return new InstructorRegisterResponseDto(
-                instructor.getBaseMember().getEmail(),
-                instructor.getBaseMember().getName(),
-                instructor.getBaseMember().getPhone(),
+                instructor.getEmail(),
+                instructor.getName(),
+                instructor.getPhone(),
                 instructor.getAffiliation(),
-                instructor.getBaseMember().isActive()
+                instructor.isActive()
         );
     }
 }

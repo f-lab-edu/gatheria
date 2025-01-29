@@ -17,12 +17,13 @@ public class StudentRegisterRequestDto {
     private String name;
     private String phone;
 
-    public BaseMember toBaseMember() {
-        return new BaseMember(email,password,name,phone,false);
-    }
-
     public Student toDomain() {
-        BaseMember baseMember = toBaseMember();
-        return new Student(baseMember);
+        return Student.builder()
+                .email(email)
+                .password(password)
+                .name(name)
+                .phone(phone)
+                .isActive(false)
+                .build();
     }
 }

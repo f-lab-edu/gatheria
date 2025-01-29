@@ -1,15 +1,16 @@
 package com.gatheria.domain;
 
+import lombok.Builder;
 import lombok.Getter;
 
+@Builder
 @Getter
 public class Instructor {
     private Long id;
-    private BaseMember baseMember;
+    private String email;
+    private String password;
+    private String name;
+    private String phone;
     private String affiliation;
-
-    public Instructor(BaseMember baseMember, String affiliation) {
-        this.baseMember = baseMember;
-        this.affiliation = affiliation;
-    }
+    private boolean isActive;
 }
