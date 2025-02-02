@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gatheria.mapper.MemberMapper">
+
+
+
+    <insert id="insertInstructor" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO instructors (email, password, name, phone, affiliation, active, created_at, updated_at)
+        VALUES (#{email}, #{password}, #{name}, #{phone}, #{affiliation}, #{active}, NOW(), NOW())
+    </insert>
+
+    <insert id="insertStudent" useGeneratedKeys="true" keyProperty="id" >
+        INSERT INTO students (email, password, name, phone, active, created_at, updated_at)
+        VALUES (#{email}, #{password}, #{name}, #{phone}, #{active}, NOW(), NOW())
+    </insert>
+    
+    <select id="existsByEmailInStudents" resultType="boolean">
+        SELECT COUNT(*) > 0 FROM students WHERE email = #{email}
+    </select>
+
+    <select id="existsByEmailInInstructors" resultType="boolean">
+        SELECT COUNT(*) > 0 FROM instructors WHERE email = #{email}
+    </select>
+
+    <select id="findPendingInstructors" resultType="com.gatheria.domain.Instructor">
+        SELECT * FROM instructors WHERE active = false LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <select id="countPendingInstructors" resultType="int">
+        SELECT COUNT(*) FROM instructors WHERE active = false
+    </select>
+
+    <select id="findInstructorByID" resultType="com.gatheria.domain.Instructor">
+        SELECT * FROM instructors WHERE id = #{id}
+    </select>
+
+    <update id="updateInstructorActivateStatus">
+        UPDATE instructors
+        SET active = #{active}
+        WHERE id = #{id}
+    </update>
+
+</mapper>

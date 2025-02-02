@@ -23,7 +23,7 @@ public class StudentRegisterRequestDto {
                 .password(password)
                 .name(name)
                 .phone(phone)
-                .isActive(false)
+                .active(false)
                 .build();
     }
 }

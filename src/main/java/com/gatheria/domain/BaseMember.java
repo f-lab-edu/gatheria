@@ -27,10 +27,8 @@ public class BaseMember {
 
     public void activate() {
         if (this.isActive) {
-            logger.info("The user is already activated.");
             return;
         }
         this.isActive = true;
-        logger.info("User activated successfully.");
     }
 }

@@ -26,7 +26,7 @@ public class InstructorRegisterRequestDto {
                 .name(name)
                 .phone(phone)
                 .affiliation(affiliation)
-                .isActive(false)
+                .active(false)
                 .build();
     }
 }

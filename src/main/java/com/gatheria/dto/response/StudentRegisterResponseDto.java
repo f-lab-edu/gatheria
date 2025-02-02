@@ -11,7 +11,7 @@ public class StudentRegisterResponseDto {
     private final String email;
     private final String name;
     private final String phone;
-    private final boolean isActive;
+    private final boolean active;
 
     public static StudentRegisterResponseDto from(Student student) {
         return new StudentRegisterResponseDto(

@@ -12,5 +12,9 @@ public class Instructor {
     private String name;
     private String phone;
     private String affiliation;
-    private boolean isActive;
+    private boolean active;
+
+    public void setActive() {
+        this.active = true;
+    }
 }

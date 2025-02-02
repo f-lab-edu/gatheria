@@ -11,5 +11,9 @@ public class Student {
     private String password;
     private String name;
     private String phone;
-    private boolean isActive;
+    private boolean active;
+
+    public void setActive() {
+        this.active = true;
+    }
 }

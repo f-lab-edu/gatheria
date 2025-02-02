@@ -4,10 +4,18 @@ server :
 spring :
   application:
     name : gatheria
+
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
   config :
     import : application-secret.yml
     activate:
       on-profile : local
+
+  security:
+    debug: true
 
   datasource:
     url: jdbc:mysql://localhost:3306/gatheria
@@ -22,5 +30,10 @@ mybatis:
 
 logging:
   level:
-    org.springframework.data.redis: DEBUG
-    org.springframework.boot.autoconfigure.data.redis: DEBUG
+    org:
+      springframework:
+        security: DEBUG
+
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: 3600000
