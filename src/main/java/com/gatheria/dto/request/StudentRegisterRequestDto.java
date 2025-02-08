@@ -1,6 +1,5 @@
 package com.gatheria.dto.request;
 
-import com.gatheria.domain.BaseMember;
 import com.gatheria.domain.Student;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,13 +16,7 @@ public class StudentRegisterRequestDto {
     private String name;
     private String phone;
 
-    public Student toDomain() {
-        return Student.builder()
-                .email(email)
-                .password(password)
-                .name(name)
-                .phone(phone)
-                .active(false)
-                .build();
+    public Student toDomain(String encodedPassword) {
+        return Student.of(email, encodedPassword, name, phone);
     }
 }

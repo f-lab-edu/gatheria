@@ -2,11 +2,14 @@ package com.gatheria.service;
 
 import com.gatheria.common.util.JwtUtil;
 import com.gatheria.domain.Instructor;
+import com.gatheria.domain.Member;
 import com.gatheria.domain.Student;
+import com.gatheria.domain.type.MemberRole;
 import com.gatheria.dto.request.LoginRequestDto;
 import com.gatheria.dto.response.LoginResponseDto;
 import com.gatheria.mapper.AuthMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.parameters.P;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -23,42 +26,25 @@ public class AuthService {
         this.jwtUtil = jwtUtil;
     }
 
-    public LoginResponseDto authenticate(LoginRequestDto request, String role) {
-        if ("student".equalsIgnoreCase(role)) {
-            return authenticateStudent(request);
-        } else if ("instructor".equalsIgnoreCase(role)) {
-            return authenticateInstructor(request);
-        } else {
-            throw new RuntimeException("Invalid role");
-        }
-    }
+    public LoginResponseDto authenticate(LoginRequestDto request, String roleStr) {
 
-    private LoginResponseDto authenticateStudent(LoginRequestDto request) {
-        Student student = authMapper.findStudentByEmail(request.getEmail());
-        if (student == null) {
-            throw new RuntimeException("Student not found");
+        MemberRole role = MemberRole.fromString(roleStr);
+
+        Member member = switch (role) {
+            case STUDENT -> authMapper.findStudentByEmail(request.getEmail());
+            case INSTRUCTOR -> authMapper.findInstructorByEmail(request.getEmail());
+        };
+
+        if (member == null) {
+            throw new RuntimeException("Member not found");
         }
-        if (!passwordEncoder.matches(request.getPassword(), student.getPassword())) {
+
+        if (!passwordEncoder.matches(request.getPassword(), member.getPassword())) {
             throw new RuntimeException("Invalid Password");
         }
 
-        String accessToken = jwtUtil.createAccessToken(request.getEmail(),"student");
+        String accessToken = jwtUtil.createAccessToken(request.getEmail(), role.getValue());
 
-        return LoginResponseDto.from(accessToken, student);
-    }
-
-    private LoginResponseDto authenticateInstructor(LoginRequestDto request) {
-        Instructor instructor = authMapper.findInstructorByEmail(request.getEmail());
-        if (instructor == null) {
-            throw new RuntimeException("Instructor not found");
-        }
-
-        if (!passwordEncoder.matches(request.getPassword(), instructor.getPassword())) {
-            throw new RuntimeException("Invalid Password");
-        }
-
-        String accessToken = jwtUtil.createAccessToken(request.getEmail(),"instructor");
-
-        return LoginResponseDto.from(accessToken, instructor);
+        return LoginResponseDto.from(accessToken, member);
     }
 }

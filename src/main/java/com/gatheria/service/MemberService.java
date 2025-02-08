@@ -2,6 +2,7 @@ package com.gatheria.service;
 
 import com.gatheria.domain.Instructor;
 import com.gatheria.domain.Student;
+import com.gatheria.domain.type.MemberRole;
 import com.gatheria.dto.request.InstructorRegisterRequestDto;
 import com.gatheria.dto.request.StudentRegisterRequestDto;
 import com.gatheria.dto.response.InstructorRegisterResponseDto;
@@ -12,6 +13,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class MemberService {
@@ -24,58 +26,35 @@ public class MemberService {
         this.passwordEncoder = passwordEncoder;
     }
 
-
+    @Transactional
     public InstructorRegisterResponseDto register(InstructorRegisterRequestDto request) {
-        Instructor instructor = request.toDomain();
 
-        String encodedPassword = passwordEncoder.encode(instructor.getPassword());
+        String encodedPassword = passwordEncoder.encode(request.getPassword());
+        Instructor instructor = request.toDomain(encodedPassword);
 
-        instructor = Instructor.builder()
-                .id(instructor.getId())
-                .email(instructor.getEmail())
-                .password(encodedPassword)
-                .name(instructor.getName())
-                .phone(instructor.getPhone())
-                .affiliation(instructor.getAffiliation())
-                .active(false)
-                .build();
-
-        memberMapper.insertInstructor(instructor);
+        memberMapper.insertMember(instructor);
+        memberMapper.insertInstructor(instructor );
 
         return InstructorRegisterResponseDto.from(instructor);
     }
 
+    @Transactional
     public StudentRegisterResponseDto register(StudentRegisterRequestDto request) {
-        Student student = request.toDomain();
 
-        String encodedPassword = passwordEncoder.encode(student.getPassword());
+        String encodedPassword = passwordEncoder.encode(request.getPassword());
+        Student student = request.toDomain(encodedPassword);
 
-        student = Student.builder()
-                .id(student.getId())
-                .email(student.getEmail())
-                .password(encodedPassword)
-                .name(student.getName())
-                .phone(student.getPhone())
-                .active(false)
-                .build();
-
+        memberMapper.insertMember(student);
         memberMapper.insertStudent(student);
 
         return StudentRegisterResponseDto.from(student);
     }
 
-
-    public boolean emailExists(String email, String role) {
-        if ("student".equalsIgnoreCase(role)) {
-            return memberMapper.existsByEmailInStudents(email);
-        } else if ("instructor".equalsIgnoreCase(role)) {
-            System.out.println(memberMapper.existsByEmailInInstructors(email));
-            return memberMapper.existsByEmailInInstructors(email);
-        }
-        throw new IllegalArgumentException("Invalid role: " + role);
+    public boolean emailExists(String email) {
+        return memberMapper.existsByEmail(email);
     }
 
-    public PagedInstructorResponseDto getPendingInstructors(int page, int size) {
+    public PagedInstructorResponseDto showPendingInstructors(int page, int size) {
         int offset = (page - 1) * size;
         List<Instructor> pendingInstructors = memberMapper.findPendingInstructors(offset, size);
         int totalCount = memberMapper.countPendingInstructors();

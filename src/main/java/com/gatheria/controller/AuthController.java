@@ -25,6 +25,7 @@ public class AuthController {
     public AuthController(AuthService authService) {
         this.authService = authService;
     }
+
     @PostMapping("/{role}/login")
     public ResponseEntity<?> login(@PathVariable("role") String role, @RequestBody LoginRequestDto request){
         LoginResponseDto response = authService.authenticate(request, role);

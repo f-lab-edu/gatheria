@@ -1,5 +1,6 @@
 package com.gatheria.controller;
 
+import com.gatheria.dto.response.PagedInstructorResponseDto;
 import com.gatheria.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -21,16 +22,17 @@ public class AdminController {
     }
 
     @GetMapping("/pending-instructors")
-    public ResponseEntity<?> getPendingInstructors(
+    public ResponseEntity<PagedInstructorResponseDto> showPendingInstructors(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
-        return ResponseEntity.ok(memberService.getPendingInstructors(page, size));
+        PagedInstructorResponseDto response = memberService.showPendingInstructors(page, size);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/approve-instructor/{id}")
-    public ResponseEntity<?> approveInstructor(@PathVariable Long id) {
+    public ResponseEntity<Void> approveInstructor(@PathVariable Long id) {
         memberService.approveInstructor(id);
-        return ResponseEntity.ok("Approve instructor");
+        return ResponseEntity.ok().build();
     }
 
 

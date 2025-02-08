@@ -1,20 +1,29 @@
 package com.gatheria.domain;
 
-import lombok.Builder;
+import com.gatheria.domain.type.MemberRole;
 import lombok.Getter;
 
-@Builder
-@Getter
-public class Instructor {
-    private Long id;
-    private String email;
-    private String password;
-    private String name;
-    private String phone;
-    private String affiliation;
-    private boolean active;
 
-    public void setActive() {
-        this.active = true;
+@Getter
+public class Instructor extends Member{
+    private final String affiliation;
+
+    public Instructor(String email, String password, String name, String phone, String affiliation) {
+        super(email, password, name, phone, false);
+        this.affiliation = affiliation;
+    }
+
+    public static Instructor of(String email, String password, String name, String phone, String affiliation) {
+        return new Instructor(email, password, name, phone, affiliation);
+    }
+
+    @Override
+    public String getAffiliation() {
+        return this.affiliation;
+    }
+
+    @Override
+    public MemberRole getRole() {
+        return MemberRole.INSTRUCTOR;
     }
 }

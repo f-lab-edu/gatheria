@@ -7,6 +7,5 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface AuthMapper {
     Student findStudentByEmail(String email);
-
     Instructor findInstructorByEmail(String email);
 }
