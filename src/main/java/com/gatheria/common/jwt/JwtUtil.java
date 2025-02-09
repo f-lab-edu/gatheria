@@ -1,8 +1,7 @@
-package com.gatheria.common.util;
+package com.gatheria.common.jwt;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
-import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import java.security.Key;
@@ -37,14 +36,20 @@ public class JwtUtil {
     }
 
     public boolean validateAccessToken(String token) {
-        Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
-                .build()
-                .parseClaimsJwt(token);
 
-        Claims claims = extractClaims(token);
-        Date expiration = claims.getExpiration();
-        return !expiration.before(new Date());
+        try {
+            Jwts.parserBuilder()
+                    .setSigningKey(getSigningKey())
+                    .build()
+                    .parseClaimsJwt(token);
+
+            Claims claims = extractClaims(token);
+            Date expiration = claims.getExpiration();
+            return !expiration.before(new Date());
+        }  catch (JwtException e){
+            return false;
+        }
+
     }
 
     private Claims extractClaims(String token) {
