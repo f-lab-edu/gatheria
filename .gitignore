@@ -65,4 +65,4 @@ dist-ssr
 *.sln
 *.sw?
 
-src.resources.static/*
+src/resources/static/
