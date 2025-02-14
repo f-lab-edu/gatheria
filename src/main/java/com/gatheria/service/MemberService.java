@@ -2,7 +2,6 @@ package com.gatheria.service;
 
 import com.gatheria.domain.Instructor;
 import com.gatheria.domain.Student;
-import com.gatheria.domain.type.MemberRole;
 import com.gatheria.dto.request.InstructorRegisterRequestDto;
 import com.gatheria.dto.request.StudentRegisterRequestDto;
 import com.gatheria.dto.response.InstructorRegisterResponseDto;
@@ -17,54 +16,56 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class MemberService {
-    private final MemberMapper memberMapper;
-    private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    public MemberService(MemberMapper memberMapper, PasswordEncoder passwordEncoder) {
-        this.memberMapper = memberMapper;
-        this.passwordEncoder = passwordEncoder;
-    }
+  private final MemberMapper memberMapper;
+  private final PasswordEncoder passwordEncoder;
 
-    @Transactional
-    public InstructorRegisterResponseDto register(InstructorRegisterRequestDto request) {
+  @Autowired
+  public MemberService(MemberMapper memberMapper, PasswordEncoder passwordEncoder) {
+    this.memberMapper = memberMapper;
+    this.passwordEncoder = passwordEncoder;
+  }
 
-        String encodedPassword = passwordEncoder.encode(request.getPassword());
-        Instructor instructor = request.toDomain(encodedPassword);
+  @Transactional
+  public InstructorRegisterResponseDto register(InstructorRegisterRequestDto request) {
 
-        memberMapper.insertMember(instructor);
-        memberMapper.insertInstructor(instructor );
+    String encodedPassword = passwordEncoder.encode(request.getPassword());
+    Instructor instructor = request.toDomain(encodedPassword);
 
-        return InstructorRegisterResponseDto.from(instructor);
-    }
+    memberMapper.insertMember(instructor);
+    memberMapper.insertInstructor(instructor);
 
-    @Transactional
-    public StudentRegisterResponseDto register(StudentRegisterRequestDto request) {
+    return InstructorRegisterResponseDto.from(instructor);
+  }
 
-        String encodedPassword = passwordEncoder.encode(request.getPassword());
-        Student student = request.toDomain(encodedPassword);
+  @Transactional
+  public StudentRegisterResponseDto register(StudentRegisterRequestDto request) {
 
-        memberMapper.insertMember(student);
-        memberMapper.insertStudent(student);
+    String encodedPassword = passwordEncoder.encode(request.getPassword());
+    Student student = request.toDomain(encodedPassword);
 
-        return StudentRegisterResponseDto.from(student);
-    }
+    memberMapper.insertMember(student);
+    memberMapper.insertStudent(student);
 
-    public boolean emailExists(String email) {
-        return memberMapper.existsByEmail(email);
-    }
+    return StudentRegisterResponseDto.from(student);
+  }
 
-    public PagedInstructorResponseDto showPendingInstructors(int page, int size) {
-        int offset = (page - 1) * size;
-        List<Instructor> pendingInstructors = memberMapper.findPendingInstructors(offset, size);
-        int totalCount = memberMapper.countPendingInstructors();
+  public boolean emailExists(String email) {
+    return memberMapper.existsByEmail(email);
+  }
 
-        return PagedInstructorResponseDto.from(pendingInstructors, totalCount, page, size);
-    }
+  public PagedInstructorResponseDto showPendingInstructors(int page, int size) {
+    int offset = (page - 1) * size;
+    List<Instructor> pendingInstructors = memberMapper.findPendingInstructors(offset, size);
+    int totalCount = memberMapper.countPendingInstructors();
 
-    public void approveInstructor(Long id) {
-        Instructor instructor = memberMapper.findInstructorByID(id);
-        instructor.setActive();
-        memberMapper.updateInstructorActivateStatus(id, instructor.isActive());
-    }
+    return PagedInstructorResponseDto.from(pendingInstructors, totalCount, page, size);
+  }
+
+  @Transactional
+  public void approveInstructor(Long id) {
+    Instructor instructor = memberMapper.findInstructorByID(id);
+    instructor.setActive();
+    memberMapper.updateInstructorActivateStatus(id, instructor.isActive());
+  }
 }

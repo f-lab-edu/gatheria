@@ -19,28 +19,30 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    private final AuthService authService;
+  private final AuthService authService;
 
-    @Autowired
-    public AuthController(AuthService authService) {
-        this.authService = authService;
+  @Autowired
+  public AuthController(AuthService authService) {
+    this.authService = authService;
+  }
+
+  @PostMapping("/{role}/login")
+  public ResponseEntity<LoginResponseDto> login(@PathVariable("role") String role,
+      @RequestBody LoginRequestDto request) {
+    LoginResponseDto response = authService.authenticate(request, role);
+    return ResponseEntity.ok(response);
+  }
+
+  //TODO : email-verification 로직 구현 (현재 가짜 로직 구현)
+  @PostMapping("/email-verification")
+  public ResponseEntity<?> sendEmailVerification(@RequestParam String email,
+      @RequestHeader("Authorization") String token) {
+    if (token == null || !token.startsWith("Bearer ")) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("토큰이 필요합니다.");
     }
 
-    @PostMapping("/{role}/login")
-    public ResponseEntity<?> login(@PathVariable("role") String role, @RequestBody LoginRequestDto request){
-        LoginResponseDto response = authService.authenticate(request, role);
-        return ResponseEntity.ok(response);
-    }
-
-    //TODO : email-verification 로직 구현 (현재 가짜 로직 구현)
-    @PostMapping("/email-verification")
-    public ResponseEntity<?> sendEmailVerification(@RequestParam String email, @RequestHeader("Authorization") String token) {
-        if (token == null || !token.startsWith("Bearer ")) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("토큰이 필요합니다.");
-        }
-
-        System.out.println("이메일 인증 요청: " + email);
-        return ResponseEntity.ok("이메일 인증 요청이 전송되었습니다.");
-    }
+    System.out.println("이메일 인증 요청: " + email);
+    return ResponseEntity.ok("이메일 인증 요청이 전송되었습니다.");
+  }
 
 }

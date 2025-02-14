@@ -19,31 +19,34 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/member")
 public class MemberController {
-    private final MemberService memberService;
 
-    @Autowired
-    public MemberController(MemberService memberService) {
-        this.memberService = memberService;
-    }
+  private final MemberService memberService;
 
-    @PostMapping("/instructor/register")
-    public ResponseEntity<?> registerUser(@RequestBody InstructorRegisterRequestDto request) {
-        InstructorRegisterResponseDto response = memberService.register(request);
-        return ResponseEntity.ok(response);
-    }
+  @Autowired
+  public MemberController(MemberService memberService) {
+    this.memberService = memberService;
+  }
+
+  @PostMapping("/instructor/register")
+  public ResponseEntity<InstructorRegisterResponseDto> registerUser(
+      @RequestBody InstructorRegisterRequestDto request) {
+    InstructorRegisterResponseDto response = memberService.register(request);
+    return ResponseEntity.ok(response);
+  }
 
 
-    @PostMapping("/student/register")
-    public ResponseEntity<?> registerUser(@RequestBody StudentRegisterRequestDto request) {
-        StudentRegisterResponseDto response = memberService.register(request);
-        return ResponseEntity.ok(response);
-    }
+  @PostMapping("/student/register")
+  public ResponseEntity<StudentRegisterResponseDto> registerUser(
+      @RequestBody StudentRegisterRequestDto request) {
+    StudentRegisterResponseDto response = memberService.register(request);
+    return ResponseEntity.ok(response);
+  }
 
-    @GetMapping("/email-check")
-    public ResponseEntity<?> checkEmailDuplicate(
-            @RequestParam String email) {
-        boolean isDuplicate = memberService.emailExists(email);
-        EmailCheckResponseDto response = EmailCheckResponseDto.of(isDuplicate);
-        return ResponseEntity.ok(response);
-    }
+  @GetMapping("/email-check")
+  public ResponseEntity<EmailCheckResponseDto> checkEmailDuplicate(
+      @RequestParam String email) {
+    boolean isDuplicate = memberService.emailExists(email);
+    EmailCheckResponseDto response = EmailCheckResponseDto.of(isDuplicate);
+    return ResponseEntity.ok(response);
+  }
 }
