@@ -41,12 +41,13 @@ public class JwtUtil {
             Jwts.parserBuilder()
                     .setSigningKey(getSigningKey())
                     .build()
-                    .parseClaimsJwt(token);
+                    .parseClaimsJws(token);
 
             Claims claims = extractClaims(token);
             Date expiration = claims.getExpiration();
             return !expiration.before(new Date());
         }  catch (JwtException e){
+            System.out.println("JWT 검증 실패: " + e.getMessage());
             return false;
         }
 
