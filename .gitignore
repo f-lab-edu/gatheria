@@ -66,4 +66,4 @@ dist-ssr
 *.sw?
 
 src/resources/static/
-src/resources/templates/
+src/main/resources/static/*
