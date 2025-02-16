@@ -12,21 +12,24 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class LectureResponseDto {
-    private String name;
-    private String code;
-    private Long instructorId;
 
-    public static LectureResponseDto of(Lecture lecture) {
-        return LectureResponseDto.builder()
-                .name(lecture.getName())
-                .code(lecture.getCode())
-                .instructorId(lecture.getInstructorId())
-                .build();
-    }
+  private Long id;
+  private String name;
+  private String code;
+  private Long instructorId;
 
-    public static List<LectureResponseDto> from(List<Lecture> lectures) {
-        return lectures.stream()
-                .map(LectureResponseDto::of)
-                .toList();
-    }
+  public static LectureResponseDto of(Lecture lecture) {
+    return LectureResponseDto.builder()
+        .id(lecture.getId())
+        .name(lecture.getName())
+        .code(lecture.getCode())
+        .instructorId(lecture.getInstructorId())
+        .build();
+  }
+
+  public static List<LectureResponseDto> from(List<Lecture> lectures) {
+    return lectures.stream()
+        .map(LectureResponseDto::of)
+        .toList();
+  }
 }

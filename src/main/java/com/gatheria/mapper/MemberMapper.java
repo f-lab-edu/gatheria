@@ -5,21 +5,27 @@ import com.gatheria.domain.Member;
 import com.gatheria.domain.Student;
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Select;
 
 @Mapper
 public interface MemberMapper {
 
-    void insertMember(Member member);
-    boolean existsByEmail(String email);
+  void insertMember(Member member);
 
+  boolean existsByEmail(String email);
 
-    void insertInstructor(Instructor instructor);
-    int countPendingInstructors();
-    List<Instructor> findPendingInstructors(int offset, int size);
-    Instructor findInstructorByID(Long id);
-    void updateInstructorActivateStatus(Long id, boolean activate);
+  void insertInstructor(Instructor instructor);
 
-    void insertStudent(Student student);
+  int countPendingInstructors();
 
+  List<Instructor> findPendingInstructors(int offset, int size);
 
+  Instructor findInstructorByID(Long id);
+
+  void updateInstructorActivateStatus(Long id, boolean activate);
+
+  void insertStudent(Student student);
+
+  @Select("SELECT * FROM students WHERE id = #{memberId}")
+  Student findStudentById(Long memberId);
 }
