@@ -64,6 +64,3 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-
-src/resources/static/
-src/main/resources/static/*

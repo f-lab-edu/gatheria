@@ -4,8 +4,7 @@ import com.gatheria.common.jwt.JwtAuthenticationFilter;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
-import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
@@ -18,22 +17,12 @@ public class WebConfig implements WebMvcConfigurer {
   }
 
   @Override
-  public void addViewControllers(ViewControllerRegistry registry) {
-    registry.addViewController("/register").setViewName("forward:/index.html");
-    registry.addViewController("/").setViewName("forward:/index.html");
-    registry.addViewController("/admin").setViewName("forward:/index.html");
-    registry.addViewController("/login").setViewName("forward:/index.html");
-    registry.addViewController("/dashboard").setViewName("forward:/index.html");
-    registry.addViewController("/dashboard/instructor").setViewName("forward:/index.html");
-    registry.addViewController("/dashboard/student").setViewName("forward:/index.html");
-    registry.addViewController("/dashboard/*-*").setViewName("forward:/index.html");
-    registry.addViewController("/join/*").setViewName("forward:/index.html");
-  }
-
-  @Override
-  public void addResourceHandlers(ResourceHandlerRegistry registry) {
-    registry.addResourceHandler("/**")
-        .addResourceLocations("classpath:/static/");
+  public void addCorsMappings(CorsRegistry registry) {
+    registry.addMapping("/api/**")
+        .allowedOrigins("http://localhost:3000")
+        .allowedMethods("GET", "POST", "PUT", "DELETE")
+        .allowedHeaders("*")
+        .allowCredentials(true);
   }
 
   @Bean

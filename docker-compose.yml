@@ -29,6 +29,16 @@ services:
     networks:
       - test_network
 
+  frontend:
+    build:
+      context: ../gatheria-front
+      dockerfile: Dockerfile
+    container_name: react-app
+    ports:
+      - "3000:80"
+    networks:
+      - test_network
+
 volumes:
   mysql-data:
 
