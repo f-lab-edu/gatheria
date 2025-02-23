@@ -36,7 +36,7 @@ public class InstructorLectureController {
   @GetMapping
   public ResponseEntity<List<LectureResponseDto>> showLectureList(
       @RequestAttribute("authInfo") AuthInfo authInfo) {
-    List<LectureResponseDto> lectures = lectureService.getLecturesByInstructor(authInfo);
+    List<LectureResponseDto> lectures = lectureService.getLectureListByInstructorID(authInfo);
     return ResponseEntity.ok(lectures);
   }
 

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -22,18 +23,12 @@ public class CommonLectureController {
     this.lectureService = lectureService;
   }
 
-  @GetMapping("/{identifier}")
-  public ResponseEntity<LectureResponseDto> showLecture(@PathVariable String identifier,
+  @GetMapping("/{lectureId}")
+  public ResponseEntity<LectureResponseDto> showLecture(@PathVariable Long lectureId,
+      @RequestParam String code,
       @RequestAttribute("authInfo") AuthInfo authInfo) {
-    String[] parts = identifier.split("-");
-    if (parts.length != 2) {
-      throw new RuntimeException();
-    }
 
-    String lectureCode = parts[0];
-    Long lectureId = Long.parseLong(parts[1]);
-
-    LectureResponseDto lecture = lectureService.findByCodeAndId(lectureCode, lectureId, authInfo);
+    LectureResponseDto lecture = lectureService.findLectureByCodeAndId(code, lectureId, authInfo);
     return ResponseEntity.ok(lecture);
 
   }

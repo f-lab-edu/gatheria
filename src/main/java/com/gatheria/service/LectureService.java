@@ -9,6 +9,7 @@ import com.gatheria.dto.response.LectureJoinResponse;
 import com.gatheria.dto.response.LectureResponseDto;
 import com.gatheria.mapper.LectureMapper;
 import com.gatheria.mapper.MemberMapper;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import org.springframework.stereotype.Service;
@@ -34,17 +35,27 @@ public class LectureService {
     lectureMapper.insertLecture(lecture);
   }
 
-  public List<LectureResponseDto> getLecturesByInstructor(AuthInfo authInfo) {
+  public List<LectureResponseDto> getLectureListByInstructorID(AuthInfo authInfo) {
     List<Lecture> lectures = lectureMapper.findByInstructorId(authInfo.getMemberId());
     return LectureResponseDto.from(lectures);
   }
 
-  public List<LectureResponseDto> getLecturesByStudentId(AuthInfo authInfo) {
-    List<Lecture> lectures = lectureMapper.findByStudentId(authInfo.getMemberId());
+  public List<LectureResponseDto> getLectureListByStudentId(AuthInfo authInfo) {
+    Long studentId = authInfo.getMemberId();
+
+    List<Long> lectureIds = lectureMapper.findLectureIdsByStudentId(studentId);
+
+    if (lectureIds.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    List<Lecture> lectures = lectureMapper.findLecturesByIds(lectureIds);
+
     return LectureResponseDto.from(lectures);
   }
 
-  public LectureResponseDto findByCodeAndId(String lectureCode, Long lectureId, AuthInfo authInfo) {
+  public LectureResponseDto findLectureByCodeAndId(String lectureCode, Long lectureId,
+      AuthInfo authInfo) {
     Lecture lecture = lectureMapper.findByCodeAndId(lectureCode, lectureId);
 
     if (lecture == null) {

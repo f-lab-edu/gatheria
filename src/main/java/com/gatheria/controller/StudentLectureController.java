@@ -29,7 +29,7 @@ public class StudentLectureController {
   @GetMapping
   public ResponseEntity<List<LectureResponseDto>> showLectureList(
       @RequestAttribute("authInfo") AuthInfo authInfo) {
-    List<LectureResponseDto> lectures = lectureService.getLecturesByStudentId(authInfo);
+    List<LectureResponseDto> lectures = lectureService.getLectureListByStudentId(authInfo);
     return ResponseEntity.ok(lectures);
   }
 

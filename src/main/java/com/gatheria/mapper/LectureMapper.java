@@ -14,13 +14,11 @@ public interface LectureMapper {
 
   List<Lecture> findByInstructorId(Long memberId);
 
-  @Select("SELECT l.*, i.affiliation, m.name as instructor_name " +
-      "FROM lectures l " +
-      "JOIN lecture_students ls ON l.id = ls.lecture_id " +
-      "JOIN instructors i ON l.instructor_id = i.id " +
-      "JOIN members m ON i.member_id = m.id " +
-      "WHERE ls.student_id = #{studentId}")
-  List<Lecture> findByStudentId(@Param("studentId") Long studentId);
+  @Select("SELECT lecture_id FROM lecture_students WHERE student_id = #{studentId}")
+  List<Long> findLectureIdsByStudentId(@Param("studentId") Long studentId);
+
+  @Select("SELECT * FROM lectures WHERE id IN (${lectureIds})")
+  List<Lecture> findLecturesByIds(@Param("lectureIds") List<Long> lectureIds);
 
   @Select("SELECT * FROM lectures WHERE id = #{lectureId} AND code = #{lectureCode}")
   Lecture findByCodeAndId(@Param("lectureCode") String lectureCode,
