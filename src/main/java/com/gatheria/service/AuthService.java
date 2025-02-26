@@ -1,15 +1,12 @@
 package com.gatheria.service;
 
-import com.gatheria.common.util.JwtUtil;
-import com.gatheria.domain.Instructor;
+import com.gatheria.common.jwt.JwtUtil;
 import com.gatheria.domain.Member;
-import com.gatheria.domain.Student;
 import com.gatheria.domain.type.MemberRole;
 import com.gatheria.dto.request.LoginRequestDto;
 import com.gatheria.dto.response.LoginResponseDto;
 import com.gatheria.mapper.AuthMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.parameters.P;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -43,7 +40,7 @@ public class AuthService {
             throw new RuntimeException("Invalid Password");
         }
 
-        String accessToken = jwtUtil.createAccessToken(request.getEmail(), role.getValue());
+        String accessToken = jwtUtil.createAccessToken(request.getEmail(), role.getValue(), member.getId());
 
         return LoginResponseDto.from(accessToken, member);
     }

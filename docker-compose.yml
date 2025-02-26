@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   mysql:
     image: mysql:8.0
@@ -26,6 +24,16 @@ services:
       SPRING_DATASOURCE_PASSWORD: 1234
     depends_on:
       - mysql
+    networks:
+      - test_network
+
+  frontend:
+    build:
+      context: ../gatheria-front
+      dockerfile: Dockerfile
+    container_name: react-app
+    ports:
+      - "3000:80"
     networks:
       - test_network
 
