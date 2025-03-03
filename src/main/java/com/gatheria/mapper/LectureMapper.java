@@ -1,6 +1,7 @@
 package com.gatheria.mapper;
 
 import com.gatheria.domain.Lecture;
+import com.gatheria.dto.response.StudentResponseDto;
 import java.util.List;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
@@ -19,6 +20,9 @@ public interface LectureMapper {
 
   @Select("SELECT * FROM lectures WHERE id IN (${lectureIds})")
   List<Lecture> findLecturesByIds(@Param("lectureIds") List<Long> lectureIds);
+
+  @Select(("SELECT * FROM lectures WHERE id = #{lectureId};"))
+  Lecture findLectureById(@Param("lectureId") Long lectureId);
 
   @Select("SELECT * FROM lectures WHERE id = #{lectureId} AND code = #{lectureCode}")
   Lecture findByCodeAndId(@Param("lectureCode") String lectureCode,
@@ -42,5 +46,8 @@ public interface LectureMapper {
       @Param("lectureId") Long lectureId
   );
 
+  @Select("SELECT student_id FROM lecture_students WHERE lecture_id = #{lectureId}")
+  List<Long> findStudentIdsByLectureId(@Param("lectureId") Long lectureId);
 
+  List<StudentResponseDto> findStudentsByLectureId(Long lectureId);
 }

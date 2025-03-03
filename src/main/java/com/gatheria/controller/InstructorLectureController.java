@@ -39,5 +39,4 @@ public class InstructorLectureController {
     List<LectureResponseDto> lectures = lectureService.getLectureListByInstructorID(authInfo);
     return ResponseEntity.ok(lectures);
   }
-
 }

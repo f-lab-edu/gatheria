@@ -1,13 +1,13 @@
-server :
-  port : 8080
+server:
+  port: 8080
 
-spring :
+spring:
   application:
-    name : gatheria
-  config :
-    import : application-secret.yml
+    name: gatheria
+  config:
+    import: application-secret.yml
     activate:
-      on-profile : docker
+      on-profile: docker
 
   security:
     debug: true
@@ -28,6 +28,7 @@ logging:
     org:
       springframework:
         security: DEBUG
+      mybatis: DEBUG
 
 jwt:
   secret: ${JWT_SECRET}

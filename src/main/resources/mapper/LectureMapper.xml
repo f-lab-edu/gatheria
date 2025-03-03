@@ -24,5 +24,13 @@
     WHERE instructor_id = #{instructorId}
   </select>
 
-
+  <select id="findStudentsByLectureId" resultType="com.gatheria.dto.response.StudentResponseDto">
+    SELECT m.id AS memberId,
+           m.name,
+           m.email
+    FROM members m
+           JOIN students s ON m.id = s.member_id
+           JOIN lecture_students ls ON s.id = ls.student_id
+    WHERE ls.lecture_id = #{lectureId}
+  </select>
 </mapper>
