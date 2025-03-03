@@ -18,9 +18,9 @@ public interface LectureMapper {
   @Select("SELECT lecture_id FROM lecture_students WHERE student_id = #{studentId}")
   List<Long> findLectureIdsByStudentId(@Param("studentId") Long studentId);
 
-  @Select("SELECT * FROM lectures WHERE id IN (${lectureIds})")
-  List<Lecture> findLecturesByIds(@Param("lectureIds") List<Long> lectureIds);
-
+  //여기 수정 중
+  List<Lecture> findLecturesByIds(@Param("list") List<Long> lectureIds);
+  
   @Select(("SELECT * FROM lectures WHERE id = #{lectureId};"))
   Lecture findLectureById(@Param("lectureId") Long lectureId);
 

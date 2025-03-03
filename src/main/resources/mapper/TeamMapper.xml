@@ -3,10 +3,10 @@
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.gatheria.mapper.TeamMapper">
 
-  <insert id="saveTeams" useGeneratedKeys="true" parameterType="list">
+  <insert id="saveTeams" useGeneratedKeys="true" keyProperty="id" parameterType="list">
     INSERT INTO teams (name, lecture_id, created_at, updated_at)
     VALUES
-    <foreach collection="newTeams" item="team" separator=",">
+    <foreach collection="list" item="team" separator=",">
       (#{team.name}, #{team.lectureId}, #{team.createdAt}, #{team.updatedAt})
     </foreach>
   </insert>
@@ -14,11 +14,9 @@
   <insert id="saveTeamMembers" parameterType="list">
     INSERT INTO team_members (team_id, student_id, lecture_id, created_at, updated_at)
     VALUES
-    <foreach collection="teamMembers" item="member" separator=",">
-      (#{member.teamId}, #{member.studentId}, #{member.lectureId}, #{member.createdAt},
-      #{member.updatedAt})
+    <foreach collection="list" item="member" separator=",">
+      (#{member.teamId}, #{member.studentId}, #{member.lectureId}, NOW(), NOW())
     </foreach>
   </insert>
-
 
 </mapper>

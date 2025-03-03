@@ -1,11 +1,11 @@
 package com.gatheria.service;
 
 import com.gatheria.domain.Lecture;
-import com.gatheria.domain.Member;
 import com.gatheria.domain.Team;
 import com.gatheria.domain.TeamMember;
 import com.gatheria.domain.type.AuthInfo;
 import com.gatheria.domain.type.MemberRole;
+import com.gatheria.dto.response.MemberDto;
 import com.gatheria.dto.response.StudentResponseDto;
 import com.gatheria.dto.response.TeamResponseDto;
 import com.gatheria.mapper.LectureMapper;
@@ -126,16 +126,30 @@ public class TeamService {
     List<TeamMember> teamMembers = teamMapper.findTeamMembersByLectureId(lectureId);
 
     List<Long> studentIds = teamMembers.stream().map(TeamMember::getStudentId).toList();
-    List<Member> students = memberMapper.findStudentsByIds(studentIds);
 
-    Map<Long, Member> studentMap = students.stream()
-        .collect(Collectors.toMap(Member::getId, m -> m));
+    List<Long> memberIds = memberMapper.findMemberIdsByStudentIds(studentIds);
+
+    List<MemberDto> memberDtos = memberMapper.findMembersByIds(memberIds);
+
+    Map<Long, MemberDto> studentMap = memberDtos.stream()
+        .collect(Collectors.toMap(MemberDto::getId, m -> m));
 
     Map<Long, List<StudentResponseDto>> studentByTeam = teamMembers.stream()
         .collect(Collectors.groupingBy(
             TeamMember::getTeamId, Collectors.mapping(
-                member -> StudentResponseDto.of(studentMap.get(member.getStudentId())),
-                Collectors.toList()
+                member -> {
+                  Long studentId = member.getStudentId();
+                  int index = studentIds.indexOf(studentId);
+                  if (index == -1) {
+                    return null;
+                  }
+
+                  Long memberId = memberIds.get(index);
+                  MemberDto matchedMember = studentMap.get(memberId);
+
+                  return matchedMember != null ? StudentResponseDto.of(matchedMember) : null;
+                },
+                Collectors.filtering(Objects::nonNull, Collectors.toList())
             )
         ));
 
@@ -149,6 +163,7 @@ public class TeamService {
   }
 
   public TeamResponseDto getTeamByTeamId(Long lectureId, Long teamId, AuthInfo authInfo) {
+    //TODO : 매핑 문제 getTeamsByLectureId 참고해서 메소드 수정하기
     validateLectureAccess(lectureId, authInfo);
 
     Team team = teamMapper.findTeamByTeamId(teamId);
@@ -163,16 +178,17 @@ public class TeamService {
     }
 
     List<Long> studentIds = teamMembers.stream().map(TeamMember::getStudentId).toList();
-    List<Member> students = memberMapper.findStudentsByIds(studentIds);
 
-    Map<Long, Member> studentMap = students.stream()
-        .collect(Collectors.toMap(Member::getId, m -> m));
+    List<MemberDto> studentDtos = memberMapper.findStudentsByIds(studentIds);
 
-    List<StudentResponseDto> studentDtos = teamMembers.stream()
+    Map<Long, MemberDto> studentMap = studentDtos.stream()
+        .collect(Collectors.toMap(MemberDto::getId, m -> m));
+
+    List<StudentResponseDto> studentResponses = teamMembers.stream()
         .map(member -> StudentResponseDto.of(studentMap.get(member.getStudentId())))
         .toList();
 
-    return TeamResponseDto.of(team.getId(), team.getName(), lectureId, studentDtos);
+    return TeamResponseDto.of(team.getId(), team.getName(), lectureId, studentResponses);
   }
 
 

@@ -1,6 +1,5 @@
 package com.gatheria.dto.response;
 
-import com.gatheria.domain.Member;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,7 +15,7 @@ public class StudentResponseDto {
   private String name;
   private String email;
 
-  public static StudentResponseDto of(Member member) {
+  public static StudentResponseDto of(MemberDto member) {
     return StudentResponseDto.builder()
         .id(member.getId())
         .name(member.getName())

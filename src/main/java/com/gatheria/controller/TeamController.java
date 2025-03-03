@@ -25,10 +25,7 @@ public class TeamController {
   public TeamController(TeamService teamService) {
     this.teamService = teamService;
   }
-
-  /**
-   * 팀 자동 배정
-   */
+  
   @PostMapping("/auto-assign")
   public ResponseEntity<Void> autoAssignTeams(
       @PathVariable Long lectureId,
@@ -39,9 +36,6 @@ public class TeamController {
     return ResponseEntity.ok().build();
   }
 
-  /**
-   * 팀 수동 배정
-   */
   @PostMapping("/{teamId}/assign")
   public ResponseEntity<Void> manualAssignTeams(
       @PathVariable Long lectureId,
@@ -53,9 +47,6 @@ public class TeamController {
     return ResponseEntity.ok().build();
   }
 
-  /**
-   * 팀 목록 조회 (학생도 가능해야함) (Team Member에 중복 제한 조건 걸려잇음 중복 검증 일단 x)
-   */
   @GetMapping
   public ResponseEntity<List<TeamResponseDto>> findTeamsByLecture(
       @PathVariable Long lectureId,
@@ -66,9 +57,6 @@ public class TeamController {
     return ResponseEntity.ok(response);
   }
 
-  /**
-   * 특정 팀 조회
-   */
   @GetMapping("/{teamId}")
   public ResponseEntity<TeamResponseDto> showTeam(
       @PathVariable Long lectureId,

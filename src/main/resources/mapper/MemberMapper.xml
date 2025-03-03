@@ -14,6 +14,14 @@
     <result property="affiliation" column="affiliation"/>
   </resultMap>
 
+  <resultMap id="studentResultMap" type="com.gatheria.domain.Student">
+    <id column="id" property="id"/>
+    <result column="email" property="email"/>
+    <result column="password" property="password"/>
+    <result column="name" property="name"/>
+    <result column="phone" property="phone"/>
+  </resultMap>
+
   <select id="existsByEmail" resultType="boolean">
     SELECT COUNT(*) > 0
     FROM members
@@ -68,12 +76,29 @@
   </update>
 
   <select id="findStudentsByIds" parameterType="java.util.List"
-    resultType="com.gatheria.domain.Member">
-    SELECT * FROM members WHERE id IN
+    resultType="com.gatheria.dto.response.MemberDto">
+    SELECT id, email, name, phone FROM members WHERE id IN
+    <foreach collection="studentIds" item="id" open="(" separator="," close=")">
+      #{id}
+    </foreach>
+  </select>
+
+  <select id="findMemberIdsByStudentIds" parameterType="java.util.List"
+    resultType="java.lang.Long">
+    SELECT member_id FROM students WHERE id IN
     <foreach collection="studentIds" item="id" open="(" separator="," close=")">
       #{id}
     </foreach>
   </select>
 
 
+  <select id="findMembersByIds" parameterType="java.util.List"
+    resultType="com.gatheria.dto.response.MemberDto">
+    SELECT id, email, password, name, phone
+    FROM members
+    WHERE id IN
+    <foreach collection="memberIds" item="id" open="(" separator="," close=")">
+      #{id}
+    </foreach>
+  </select>
 </mapper>

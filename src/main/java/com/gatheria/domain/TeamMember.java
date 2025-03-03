@@ -15,7 +15,7 @@ public class TeamMember {
   private Long studentId;
   private Long lectureId;
   private LocalDateTime createdAt;
-  private LocalDateTime updateAt;
+  private LocalDateTime updatedAt;
 
   public static TeamMember of(Long teamId, Long studentId, Long lectureId) {
     return new TeamMember(
@@ -30,6 +30,6 @@ public class TeamMember {
 
   public void updateTeamId(Long newTeamId) {
     this.teamId = newTeamId;
-    this.updateAt = LocalDateTime.now();
+    this.updatedAt = LocalDateTime.now();
   }
 }

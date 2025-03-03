@@ -33,4 +33,12 @@
            JOIN lecture_students ls ON s.id = ls.student_id
     WHERE ls.lecture_id = #{lectureId}
   </select>
+
+  <select id="findLecturesByIds" parameterType="java.util.List"
+    resultType="com.gatheria.domain.Lecture">
+    SELECT * FROM lectures WHERE id IN
+    <foreach collection="list" item="id" open="(" separator="," close=")">
+      #{id}
+    </foreach>
+  </select>
 </mapper>

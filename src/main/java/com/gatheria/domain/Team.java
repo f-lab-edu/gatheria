@@ -14,7 +14,7 @@ public class Team {
   private String name;
   private Long lectureId;
   private LocalDateTime createdAt;
-  private LocalDateTime updateAt;
+  private LocalDateTime updatedAt;
 
   public static Team of(String name, Long lectureId) {
     return new Team(
