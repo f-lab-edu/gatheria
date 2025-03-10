@@ -33,7 +33,14 @@ public class MentoringSession {
     return new MentoringSession(title, mentorName, sessionDate, maxParticipants);
   }
 
-  //TODO : 현재 참석자 수 증가
+  public void incrementCurrentParticipants() {
+    if (this.currentParticipants >= this.maxParticipants) {
+      throw new IllegalStateException("정원 초과");
+    }
+    this.currentParticipants++;
+    this.updatedAt = LocalDateTime.now();
+  }
+
   //TODO : 현재 참석자 수 감소
 
   //TODO : 멘토링 세션 취소

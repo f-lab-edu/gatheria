@@ -1,9 +1,12 @@
 package com.gatheria.mapper;
 
 import com.gatheria.domain.MentoringSession;
+import com.gatheria.domain.SessionParticipant;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
+import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 @Mapper
 public interface MentoringSessionMapper {
@@ -15,4 +18,24 @@ public interface MentoringSessionMapper {
       "#{currentParticipants}, #{status}, #{createdAt}, #{updatedAt})")
   @Options(useGeneratedKeys = true, keyProperty = "id")
   void insertSession(MentoringSession session);
+
+  @Select("SELECT * FROM mentoring_sessions WHERE id = #{sessionId} FOR UPDATE")
+  MentoringSession getSessionWithLock(Long sessionId);
+
+  @Select("SELECT * FROM session_participants WHERE session_id = #{sessionId} AND student_id = #{studentId}")
+  SessionParticipant findBySessionAndStudent(Long sessionId, Long memberId);
+
+  @Update("UPDATE mentoring_sessions SET " +
+      "current_participants = #{currentParticipants}, " +
+      "status = #{status}, " +
+      "updated_at = NOW() " +
+      "WHERE id = #{id}")
+  void updateSession(MentoringSession session);
+
+  @Insert("INSERT INTO session_participants " +
+      "(session_id, student_id, status, registration_time, cancelled_at) " +
+      "VALUES " +
+      "(#{sessionId}, #{studentId}, #{status}, #{registrationTime}, #{cancelledAt})")
+  @Options(useGeneratedKeys = true, keyProperty = "id")
+  void insertParticipant(SessionParticipant participant);
 }

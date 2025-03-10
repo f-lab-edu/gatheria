@@ -1,10 +1,14 @@
 package com.gatheria.controller;
 
+import com.gatheria.common.annotation.Auth;
+import com.gatheria.domain.type.AuthInfo;
 import com.gatheria.dto.request.MentoringSessionCreateRequestDto;
 import com.gatheria.dto.response.MentoringSessionCreateResponseDto;
+import com.gatheria.dto.response.SessionRegistrationResponseDto;
 import com.gatheria.service.MentoringSessionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,7 +27,7 @@ public class MentoringSessionController {
     this.mentoringSessionService = mentoringSessionService;
   }
 
-  @PostMapping("/sessions")
+  @PostMapping("/create")
   public ResponseEntity<MentoringSessionCreateResponseDto> createMentoringSession(
       @RequestBody MentoringSessionCreateRequestDto request,
       @RequestParam String adminKey) {
@@ -40,8 +44,14 @@ public class MentoringSessionController {
     return ResponseEntity.ok(response);
   }
 
-//  public ResponseEntity<SessionRegistrationResponseDto> joinMentoringSession(
-//      @RequestBody SessionRegistrationRequestDto request,
-//      @Auth
-//  )
+  @PostMapping("/{sessionId}/join")
+  public ResponseEntity<SessionRegistrationResponseDto> joinMentoringSession(
+      @PathVariable Long sessionId,
+      @Auth AuthInfo authInfo) {
+
+    SessionRegistrationResponseDto response = mentoringSessionService.registerSession(
+        sessionId, authInfo);
+
+    return ResponseEntity.status(response.getStatus()).body(response);
+  }
 }
