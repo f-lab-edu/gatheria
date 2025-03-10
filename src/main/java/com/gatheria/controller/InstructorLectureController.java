@@ -1,5 +1,6 @@
 package com.gatheria.controller;
 
+import com.gatheria.common.annotation.Auth;
 import com.gatheria.domain.type.AuthInfo;
 import com.gatheria.dto.request.LectureCreateRequestDto;
 import com.gatheria.dto.response.LectureResponseDto;
@@ -9,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,14 +28,14 @@ public class InstructorLectureController {
   @PostMapping
   public ResponseEntity<Void> createLecture(
       @RequestBody LectureCreateRequestDto request,
-      @RequestAttribute("authInfo") AuthInfo authInfo) {
+      @Auth AuthInfo authInfo) {
     lectureService.createLecture(request, authInfo);
     return ResponseEntity.ok().build();
   }
 
   @GetMapping
   public ResponseEntity<List<LectureResponseDto>> showLectureList(
-      @RequestAttribute("authInfo") AuthInfo authInfo) {
+      @Auth AuthInfo authInfo) {
     List<LectureResponseDto> lectures = lectureService.getLectureListByInstructorID(authInfo);
     return ResponseEntity.ok(lectures);
   }

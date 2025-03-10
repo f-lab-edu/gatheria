@@ -8,12 +8,14 @@
                           code,
                           instructor_id,
                           status,
+                          class_size,
                           created_at,
                           updated_at)
     VALUES (#{name},
             #{code},
             #{instructorId},
             'ACTIVE',
+            #{classSize},
             #{createdAt},
             #{updatedAt})
   </insert>

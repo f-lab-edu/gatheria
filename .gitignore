@@ -64,3 +64,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+
+# Database files
+db/mysql/data/

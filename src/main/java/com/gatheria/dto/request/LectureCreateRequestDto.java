@@ -8,5 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class LectureCreateRequestDto {
-    private String name;
+
+  private String name;
+  private Integer classSize;
 }

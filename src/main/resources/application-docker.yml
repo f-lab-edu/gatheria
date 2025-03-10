@@ -30,6 +30,12 @@ logging:
         security: DEBUG
       mybatis: DEBUG
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus
+
 jwt:
   secret: ${JWT_SECRET}
   expiration: 3600000

@@ -12,7 +12,6 @@ import com.gatheria.mapper.LectureMapper;
 import com.gatheria.mapper.MemberMapper;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,7 +31,7 @@ public class LectureService {
     if (authInfo.getRole() != MemberRole.INSTRUCTOR) {
       throw new RuntimeException();
     }
-    Lecture lecture = Lecture.of(request.getName(), authInfo.getMemberId());
+    Lecture lecture = Lecture.of(request.getName(), authInfo.getMemberId(), request.getClassSize());
     lectureMapper.insertLecture(lecture);
   }
 
@@ -62,8 +61,8 @@ public class LectureService {
     if (lecture == null) {
       throw new RuntimeException();
     }
-    if (authInfo.getRole() == MemberRole.INSTRUCTOR
-        && !Objects.equals(lecture.getInstructorId(), authInfo.getMemberId())) {
+    if (authInfo.isInstructor()
+        && lecture.isOwnedBy(authInfo.getMemberId())) {
       throw new RuntimeException();
     }// TODO: 학생 -> 수강신청한 강의인지 확인하는 로직 추가 필요
 
