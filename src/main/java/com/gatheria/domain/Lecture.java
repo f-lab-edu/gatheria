@@ -1,6 +1,7 @@
 package com.gatheria.domain;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -32,5 +33,9 @@ public class Lecture {
 
   public static Lecture of(String name, Long instructorId) {
     return new Lecture(name, instructorId);
+  }
+
+  public boolean isOwnedBy(Long memberId) {
+    return Objects.equals(this.instructorId, memberId);
   }
 }
