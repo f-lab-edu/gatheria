@@ -1,5 +1,6 @@
 package com.gatheria.controller;
 
+import com.gatheria.common.annotation.Auth;
 import com.gatheria.domain.type.AuthInfo;
 import com.gatheria.dto.response.TeamResponseDto;
 import com.gatheria.service.TeamService;
@@ -9,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,12 +25,12 @@ public class TeamController {
   public TeamController(TeamService teamService) {
     this.teamService = teamService;
   }
-  
+
   @PostMapping("/auto-assign")
   public ResponseEntity<Void> autoAssignTeams(
       @PathVariable Long lectureId,
       @RequestParam int teamSize,
-      @RequestAttribute("authInfo") AuthInfo authInfo) {
+      @Auth AuthInfo authInfo) {
 
     teamService.autoAssignTeams(lectureId, teamSize, authInfo);
     return ResponseEntity.ok().build();
@@ -41,7 +41,7 @@ public class TeamController {
       @PathVariable Long lectureId,
       @PathVariable Long teamId,
       @RequestParam Long studentId,
-      @RequestAttribute("authInfo") AuthInfo authInfo
+      @Auth AuthInfo authInfo
   ) {
     teamService.manualAssignTeams(lectureId, teamId, studentId, authInfo);
     return ResponseEntity.ok().build();
@@ -50,7 +50,7 @@ public class TeamController {
   @GetMapping
   public ResponseEntity<List<TeamResponseDto>> findTeamsByLecture(
       @PathVariable Long lectureId,
-      @RequestAttribute("authInfo") AuthInfo authInfo
+      @Auth AuthInfo authInfo
   ) {
     List<TeamResponseDto> response = teamService.getTeamsByLectureId(lectureId, authInfo);
 
@@ -61,7 +61,7 @@ public class TeamController {
   public ResponseEntity<TeamResponseDto> showTeam(
       @PathVariable Long lectureId,
       @PathVariable Long teamId,
-      @RequestAttribute("authInfo") AuthInfo authInfo
+      @Auth AuthInfo authInfo
   ) {
     TeamResponseDto response = teamService.getTeamByTeamId(lectureId, teamId, authInfo);
 
