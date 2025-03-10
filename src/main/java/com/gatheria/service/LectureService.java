@@ -7,10 +7,12 @@ import com.gatheria.domain.type.MemberRole;
 import com.gatheria.dto.request.LectureCreateRequestDto;
 import com.gatheria.dto.response.LectureJoinResponse;
 import com.gatheria.dto.response.LectureResponseDto;
+import com.gatheria.dto.response.StudentResponseDto;
 import com.gatheria.mapper.LectureMapper;
 import com.gatheria.mapper.MemberMapper;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,9 +55,9 @@ public class LectureService {
     return LectureResponseDto.from(lectures);
   }
 
-  public LectureResponseDto findLectureByCodeAndId(String lectureCode, Long lectureId,
+  public LectureResponseDto findLectureByCodeAndId(Long lectureId,
       AuthInfo authInfo) {
-    Lecture lecture = lectureMapper.findByCodeAndId(lectureCode, lectureId);
+    Lecture lecture = lectureMapper.findLectureById(lectureId);
 
     if (lecture == null) {
       throw new RuntimeException();
@@ -92,5 +94,35 @@ public class LectureService {
     return LectureJoinResponse.from(lecture);
   }
 
+  public List<StudentResponseDto> getStudentsByLectureId(Long lectureId, AuthInfo authInfo) {
 
+    validateLectureAccess(lectureId, authInfo);
+
+    List<StudentResponseDto> students = lectureMapper.findStudentsByLectureId(lectureId);
+
+    return students;
+  }
+
+  private void validateLectureAccess(long lectureId, AuthInfo authInfo) {
+    Lecture lecture = lectureMapper.findLectureById(lectureId);
+
+    if (lecture == null) {
+      throw new IllegalArgumentException("Invalid Lecture");
+    }
+
+    if (authInfo.getRole() == MemberRole.INSTRUCTOR) {
+      if (!Objects.equals(lecture.getInstructorId(), authInfo.getMemberId())) {
+        throw new IllegalArgumentException("교수자는 해당 수업에 접근 권한 x");
+      }
+    } else if (authInfo.getRole() == MemberRole.STUDENT) {
+      boolean isEnrolled = lectureMapper.existEnrollmentByStudentIdAndLectureID(
+          authInfo.getMemberId(), lectureId);
+      if (!isEnrolled) {
+        throw new IllegalArgumentException("학생이 해당 수업에 등록 x");
+      }
+
+    } else {
+      throw new IllegalArgumentException("Invalid Role");
+    }
+  }
 }
