@@ -30,7 +30,7 @@ public class LectureService {
     if (authInfo.getRole() != MemberRole.INSTRUCTOR) {
       throw new RuntimeException();
     }
-    Lecture lecture = Lecture.of(request.getName(), authInfo.getMemberId());
+    Lecture lecture = Lecture.of(request.getName(), authInfo.getMemberId(), request.getClassSize());
     lectureMapper.insertLecture(lecture);
   }
 

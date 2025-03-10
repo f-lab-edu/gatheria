@@ -16,13 +16,15 @@ public class Lecture {
   private String name;
   private String code;
   private Long instructorId;
+  private Integer classSize;
   private LocalDateTime createdAt;
   private LocalDateTime updatedAt;
 
-  private Lecture(String name, Long instructorId) {
+  private Lecture(String name, Long instructorId, Integer classSize) {
     this.name = name;
     this.code = generateCode();
     this.instructorId = instructorId;
+    this.classSize = classSize;
     this.createdAt = LocalDateTime.now();
     this.updatedAt = LocalDateTime.now();
   }
@@ -31,8 +33,8 @@ public class Lecture {
     return UUID.randomUUID().toString().substring(0, 6).toUpperCase();
   }
 
-  public static Lecture of(String name, Long instructorId) {
-    return new Lecture(name, instructorId);
+  public static Lecture of(String name, Long instructorId, Integer classSize) {
+    return new Lecture(name, instructorId, classSize);
   }
 
   public boolean isOwnedBy(Long memberId) {

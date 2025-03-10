@@ -57,7 +57,7 @@ CREATE TABLE lectures
     code          VARCHAR(10)  NOT NULL UNIQUE COMMENT '수업 코드',
     instructor_id BIGINT       NOT NULL COMMENT '교수자 ID',
     status        VARCHAR(20)  NOT NULL DEFAULT 'ACTIVE' COMMENT '수업 상태 (ACTIVE, ARCHIVED)',
-    max_students  INT          NOT NULL DEFAULT 30 COMMENT '최대 수강 가능 인원수',
+    classSize     INT          NOT NULL DEFAULT 30 COMMENT '수업 최대 인원수',
     created_at    TIMESTAMP             DEFAULT CURRENT_TIMESTAMP COMMENT '생성일',
     updated_at    TIMESTAMP             DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '수정일',
     FOREIGN KEY (instructor_id) REFERENCES instructors (id),
