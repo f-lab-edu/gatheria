@@ -30,9 +30,14 @@ mybatis:
 
 logging:
   level:
+    com:
+      gatheria:
+        controller: DEBUG
+        service: DEBUG
     org:
       springframework:
         security: DEBUG
+        web : DEBUG
 
 jwt:
   secret: ${JWT_SECRET}

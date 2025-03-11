@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gatheria.mapper.LectureMapper">
+
+  <insert id="insertLecture" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO lectures (name,
+                          code,
+                          instructor_id,
+                          status,
+                          class_size,
+                          created_at,
+                          updated_at)
+    VALUES (#{name},
+            #{code},
+            #{instructorId},
+            'ACTIVE',
+            #{classSize},
+            #{createdAt},
+            #{updatedAt})
+  </insert>
+
+  <select id="findByInstructorId" resultType="com.gatheria.domain.Lecture">
+    SELECT *
+    FROM lectures
+    WHERE instructor_id = #{instructorId}
+  </select>
+
+
+</mapper>

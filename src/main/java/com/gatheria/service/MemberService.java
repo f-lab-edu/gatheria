@@ -1,5 +1,6 @@
 package com.gatheria.service;
 
+import com.gatheria.common.config.PasswordConfig.PasswordEncoder;
 import com.gatheria.domain.Instructor;
 import com.gatheria.domain.Student;
 import com.gatheria.dto.request.InstructorRegisterRequestDto;
@@ -10,7 +11,6 @@ import com.gatheria.dto.response.StudentRegisterResponseDto;
 import com.gatheria.mapper.MemberMapper;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
