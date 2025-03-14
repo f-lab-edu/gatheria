@@ -18,4 +18,8 @@ public class AuthInfo {
   public boolean isInstructor() {
     return this.role == MemberRole.INSTRUCTOR;
   }
+
+  public boolean isStudent() {
+    return this.role == MemberRole.STUDENT;
+  }
 }
