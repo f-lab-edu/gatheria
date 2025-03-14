@@ -19,9 +19,6 @@ public interface MentoringSessionMapper {
   @Options(useGeneratedKeys = true, keyProperty = "id")
   void insertSession(MentoringSession session);
 
-  @Select("SELECT * FROM mentoring_sessions WHERE id = #{sessionId} FOR UPDATE")
-  MentoringSession getSessionWithLock(Long sessionId);
-
   @Select("SELECT * FROM session_participants WHERE session_id = #{sessionId} AND student_id = #{studentId}")
   SessionParticipant findBySessionAndStudent(Long sessionId, Long memberId);
 
@@ -38,4 +35,14 @@ public interface MentoringSessionMapper {
       "(#{sessionId}, #{studentId}, #{status}, #{registrationTime}, #{cancelledAt})")
   @Options(useGeneratedKeys = true, keyProperty = "id")
   void insertParticipant(SessionParticipant participant);
+
+  @Update("UPDATE session_participants SET " +
+      "status = #{status}, " +
+      "registration_time = #{registrationTime}, " +
+      "cancelled_at = #{cancelledAt} " +
+      "WHERE session_id = #{sessionId} AND student_id = #{studentId}")
+  void updateParticipant(SessionParticipant participant);
+
+  @Select("SELECT * FROM mentoring_sessions WHERE id = #{sessionId}")
+  MentoringSession getSession(Long sessionId);
 }

@@ -44,7 +44,7 @@ public class MentoringSessionService {
       throw new RuntimeException("학생만 가능함");
     }
 
-    MentoringSession session = mentoringSessionMapper.getSessionWithLock(sessionId);
+    MentoringSession session = mentoringSessionMapper.getSession(sessionId);
 
     if (session == null) {
       return SessionRegistrationResponseDto.fail("해당 세션이 존재x.", HttpStatus.NOT_FOUND);
@@ -73,6 +73,7 @@ public class MentoringSessionService {
 
     if (existing != null) {
       SessionParticipant.reRegister(existing);
+      mentoringSessionMapper.updateParticipant(existing);
     } else {
       SessionParticipant participant = SessionParticipant.of(sessionId, authInfo.getMemberId());
       mentoringSessionMapper.insertParticipant(participant);
