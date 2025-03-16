@@ -41,8 +41,29 @@ public class AuthService {
       throw new RuntimeException("Invalid Password");
     }
 
-    String accessToken = jwtUtil.createAccessToken(request.getEmail(), role.getValue(),
-        member.getId());
+    String accessToken = null;
+
+    switch (role) {
+      case STUDENT:
+        Long studentId = authMapper.findStudentIdByMemberId(member.getId());
+        accessToken = jwtUtil.createStudentAccessToken(
+            request.getEmail(),
+            role.getValue(),
+            member.getId(),
+            studentId
+        );
+        break;
+
+      case INSTRUCTOR:
+        Long instructorId = authMapper.findInstructorIdByMemberId(member.getId());
+        accessToken = jwtUtil.createInstructorAccessToken(
+            request.getEmail(),
+            role.getValue(),
+            member.getId(),
+            instructorId
+        );
+        break;
+    }
 
     return LoginResponseDto.from(accessToken, member);
   }
