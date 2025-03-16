@@ -13,5 +13,7 @@ public class MentoringSessionCreateRequestDto {
   private String title;
   private String mentorName;
   private LocalDateTime sessionDate;
+  private LocalDateTime waitingStartDate;
+  private LocalDateTime waitingEndDate;
   private Integer maxParticipants;
 }

@@ -12,9 +12,10 @@ import org.apache.ibatis.annotations.Update;
 public interface MentoringSessionMapper {
 
   @Insert("INSERT INTO mentoring_sessions (" +
-      "title, mentor_name, session_date, max_participants, " +
+      "title, mentor_name, session_date, waiting_start_date, waiting_end_date, max_participants, " +
       "current_participants, status, created_at, updated_at) " +
-      "VALUES (#{title}, #{mentorName}, #{sessionDate}, #{maxParticipants}, " +
+      "VALUES (#{title}, #{mentorName}, #{sessionDate}, #{waitingStartDate}, #{waitingEndDate}, #{maxParticipants}, "
+      +
       "#{currentParticipants}, #{status}, #{createdAt}, #{updatedAt})")
   @Options(useGeneratedKeys = true, keyProperty = "id")
   void insertSession(MentoringSession session);

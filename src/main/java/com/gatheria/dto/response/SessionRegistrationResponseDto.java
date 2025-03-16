@@ -30,7 +30,7 @@ public class SessionRegistrationResponseDto {
         sessionId,
         sessionTitle,
         sessionDate,
-        "멘토링 세션 등록 완료.",
+        null,
         HttpStatus.OK
     );
   }

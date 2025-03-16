@@ -1,5 +1,6 @@
 package com.gatheria.domain;
 
+import com.gatheria.domain.type.SessionParticipantStatus;
 import java.time.LocalDateTime;
 import lombok.Getter;
 
@@ -9,15 +10,15 @@ public class SessionParticipant {
   private Long id;
   private final Long sessionId;
   private final Long studentId;
-  private LocalDateTime registrationTime; // final 제거
-  private String status;
+  private LocalDateTime registrationTime;
+  private SessionParticipantStatus status;
   private LocalDateTime cancelledAt;
 
   private SessionParticipant(Long sessionId, Long studentId) {
     this.sessionId = sessionId;
     this.studentId = studentId;
     this.registrationTime = LocalDateTime.now();
-    this.status = "REGISTERED";
+    this.status = SessionParticipantStatus.REGISTERED;
     this.cancelledAt = null;
   }
 
@@ -26,15 +27,14 @@ public class SessionParticipant {
   }
 
   public void cancel() {
-    this.status = "CANCELLED";
+    this.status = SessionParticipantStatus.CANCELLED;
     this.cancelledAt = LocalDateTime.now();
   }
 
-  public static SessionParticipant reRegister(SessionParticipant existing) {
-    existing.status = "REGISTERED";
+  public static void reRegister(SessionParticipant existing) {
+    existing.status = SessionParticipantStatus.REGISTERED;
     existing.registrationTime = LocalDateTime.now();
     existing.cancelledAt = null;
-    return existing;
   }
 
 }
