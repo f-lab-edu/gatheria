@@ -49,7 +49,7 @@ public class JwtUtil {
         .setSubject(email)
         .claim("role", role)
         .claim("memberId", memberId)
-        .claim("instructorId", instructorId)  // 교수자 ID 추가
+        .claim("instructorId", instructorId)
         .setIssuedAt(now)
         .setExpiration(expiration)
         .signWith(getSigningKey(), SignatureAlgorithm.HS256)
