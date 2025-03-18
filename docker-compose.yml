@@ -85,11 +85,10 @@ services:
     ports:
       - "6565:6565"
     volumes:
-      - ./scripts/k6/script.js:/script.js
+      - ./script.js:/script.js
     command: run /script.js
-    networks:
-      - gatheria_network
-
+    network_mode: host
+    
 volumes:
   mysql-data:
 
