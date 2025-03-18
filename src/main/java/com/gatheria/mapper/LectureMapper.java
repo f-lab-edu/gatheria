@@ -13,7 +13,7 @@ public interface LectureMapper {
 
   void insertLecture(Lecture lecture);
 
-  List<Lecture> findByInstructorId(Long memberId);
+  List<Lecture> findByInstructorId(Long instructorId);
 
   @Select("SELECT lecture_id FROM lecture_students WHERE student_id = #{studentId}")
   List<Long> findLectureIdsByStudentId(@Param("studentId") Long studentId);

@@ -32,17 +32,36 @@ public class LectureService {
     if (authInfo.getRole() != MemberRole.INSTRUCTOR) {
       throw new RuntimeException();
     }
-    Lecture lecture = Lecture.of(request.getName(), authInfo.getMemberId(), request.getClassSize());
+    Lecture lecture = Lecture.of(request.getName(), authInfo.getInstructorId(),
+        request.getClassSize());
     lectureMapper.insertLecture(lecture);
   }
 
-  public List<LectureResponseDto> getLectureListByInstructorID(AuthInfo authInfo) {
-    List<Lecture> lectures = lectureMapper.findByInstructorId(authInfo.getMemberId());
+  public List<LectureResponseDto> getLectureListByInstructorId(AuthInfo authInfo) {
+    if (!authInfo.isInstructor()) {
+      throw new RuntimeException("교수자 권한이 필요");
+    }
+
+    Long instructorId = authInfo.getInstructorId();
+    if (instructorId == null) {
+      throw new RuntimeException("교수자 ID를 찾지 못함");
+    }
+
+    List<Lecture> lectures = lectureMapper.findByInstructorId(instructorId);
+
+    if (lectures.isEmpty()) {
+      return Collections.emptyList();
+    }
+
     return LectureResponseDto.from(lectures);
   }
 
   public List<LectureResponseDto> getLectureListByStudentId(AuthInfo authInfo) {
-    Long studentId = authInfo.getMemberId();
+    if (!authInfo.isStudent()) {
+      throw new RuntimeException("학생 권한이 필요");
+    }
+
+    Long studentId = authInfo.getStudentId();
 
     List<Long> lectureIds = lectureMapper.findLectureIdsByStudentId(studentId);
 
@@ -63,7 +82,7 @@ public class LectureService {
       throw new RuntimeException();
     }
     if (authInfo.isInstructor()
-        && lecture.isOwnedBy(authInfo.getMemberId())) {
+        && lecture.isOwnedBy(authInfo.getInstructorId())) {
       throw new RuntimeException();
     }// TODO: 학생 -> 수강신청한 강의인지 확인하는 로직 추가 필요
 
@@ -72,21 +91,24 @@ public class LectureService {
 
   @Transactional
   public LectureJoinResponse joinLecture(String code, AuthInfo authInfo) {
+    if (!authInfo.isStudent()) {
+      throw new RuntimeException("학생만 강의에 참여 가능");
+    }
 
-    Student student = memberMapper.findStudentById(authInfo.getMemberId());
+    Student student = memberMapper.findStudentById(authInfo.getStudentId());
 
     if (student == null) {
-      throw new RuntimeException();
+      throw new RuntimeException("학생 정보를 찾을 수 없음");
     }
 
     Lecture lecture = lectureMapper.findLectureByCode(code);
 
     if (lecture == null) {
-      throw new RuntimeException();
+      throw new RuntimeException("강의를 찾을 수 없음");
     }
 
     if (lectureMapper.existEnrollmentByStudentIdAndLectureID(student.getId(), lecture.getId())) {
-      throw new RuntimeException();
+      throw new RuntimeException("이미 수강신청한 강의");
     }
 
     lectureMapper.insertLectureStudent(student.getId(), lecture.getId());
