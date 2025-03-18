@@ -26,6 +26,6 @@ public interface MemberMapper {
 
   void insertStudent(Student student);
 
-  @Select("SELECT * FROM students WHERE id = #{memberId}")
-  Student findStudentById(Long memberId);
+  @Select("SELECT * FROM students WHERE id = #{studentId}")
+  Student findStudentById(Long studentId);
 }

@@ -24,8 +24,8 @@ public class JwtUtil {
     return Keys.hmacShaKeyFor(secretKey.getBytes());
   }
 
-  public String createAccessToken(String email, String role, Long memberId) {
 
+  public String createStudentAccessToken(String email, String role, Long memberId, Long studentId) {
     Date now = new Date();
     Date expiration = new Date(now.getTime() + expirationTime);
 
@@ -33,6 +33,23 @@ public class JwtUtil {
         .setSubject(email)
         .claim("role", role)
         .claim("memberId", memberId)
+        .claim("studentId", studentId)
+        .setIssuedAt(now)
+        .setExpiration(expiration)
+        .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+        .compact();
+  }
+
+  public String createInstructorAccessToken(String email, String role, Long memberId,
+      Long instructorId) {
+    Date now = new Date();
+    Date expiration = new Date(now.getTime() + expirationTime);
+
+    return Jwts.builder()
+        .setSubject(email)
+        .claim("role", role)
+        .claim("memberId", memberId)
+        .claim("instructorId", instructorId)
         .setIssuedAt(now)
         .setExpiration(expiration)
         .signWith(getSigningKey(), SignatureAlgorithm.HS256)
@@ -77,4 +94,12 @@ public class JwtUtil {
     return extractClaims(token).get("memberId", Long.class);
   }
 
+
+  public Long extractStudentId(String token) {
+    return extractClaims(token).get("studentId", Long.class);
+  }
+
+  public Long extractInstructorId(String token) {
+    return extractClaims(token).get("instructorId", Long.class);
+  }
 }
