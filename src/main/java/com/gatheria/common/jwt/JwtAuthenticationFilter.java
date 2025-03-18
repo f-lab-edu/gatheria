@@ -66,7 +66,16 @@ public class JwtAuthenticationFilter implements Filter {
         MemberRole role = MemberRole.fromString(jwtUtil.extractRole(token));
         Long memberId = jwtUtil.extractMemberId(token);
 
-        AuthInfo authInfo = new AuthInfo(email, role, memberId);
+        Long studentId = null;
+        Long instructorId = null;
+
+        if (role == MemberRole.STUDENT) {
+          studentId = jwtUtil.extractStudentId(token);
+        } else if (role == MemberRole.INSTRUCTOR) {
+          instructorId = jwtUtil.extractInstructorId(token);
+        }
+
+        AuthInfo authInfo = new AuthInfo(email, role, memberId, studentId, instructorId);
 
         httpRequest.setAttribute("authInfo", authInfo);
 
