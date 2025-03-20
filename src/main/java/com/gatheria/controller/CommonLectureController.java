@@ -30,5 +30,4 @@ public class CommonLectureController {
     return ResponseEntity.ok(lecture);
 
   }
-
 }

@@ -14,26 +14,25 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/admin")
 public class AdminController {
-    private final MemberService memberService;
 
-    @Autowired
-    public AdminController(MemberService memberService) {
-        this.memberService = memberService;
-    }
+  private final MemberService memberService;
 
-    @GetMapping("/pending-instructors")
-    public ResponseEntity<PagedInstructorResponseDto> showPendingInstructors(
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        PagedInstructorResponseDto response = memberService.showPendingInstructors(page, size);
-        return ResponseEntity.ok(response);
-    }
+  @Autowired
+  public AdminController(MemberService memberService) {
+    this.memberService = memberService;
+  }
 
-    @PostMapping("/approve-instructor/{id}")
-    public ResponseEntity<Void> approveInstructor(@PathVariable Long id) {
-        memberService.approveInstructor(id);
-        return ResponseEntity.ok().build();
-    }
+  @GetMapping("/pending-instructors")
+  public ResponseEntity<PagedInstructorResponseDto> showPendingInstructors(
+      @RequestParam(defaultValue = "1") int page,
+      @RequestParam(defaultValue = "10") int size) {
+    PagedInstructorResponseDto response = memberService.showPendingInstructors(page, size);
+    return ResponseEntity.ok(response);
+  }
 
-
+  @PostMapping("/approve-instructor/{id}")
+  public ResponseEntity<Void> approveInstructor(@PathVariable Long id) {
+    memberService.approveInstructor(id);
+    return ResponseEntity.ok().build();
+  }
 }

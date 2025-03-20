@@ -39,6 +39,4 @@ public class StudentLectureController {
     LectureJoinResponse response = lectureService.joinLecture(request.getCode(), authInfo);
     return ResponseEntity.ok(response);
   }
-
-
 }

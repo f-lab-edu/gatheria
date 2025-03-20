@@ -1,28 +1,27 @@
 package com.gatheria.domain;
 
 import java.time.LocalDateTime;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
-public class Team {
+@SuperBuilder
+public class Team extends BaseEntity {
 
-  private Long id;
   private String name;
   private Long lectureId;
-  private LocalDateTime createdAt;
-  private LocalDateTime updatedAt;
+
+  protected Team(Long id, String name, Long lectureId, LocalDateTime createdAt,
+      LocalDateTime updatedAt) {
+    super(id, createdAt, updatedAt);
+    this.name = name;
+    this.lectureId = lectureId;
+  }
 
   public static Team of(String name, Long lectureId) {
-    return new Team(
-        null,
-        name,
-        lectureId,
-        LocalDateTime.now(),
-        LocalDateTime.now()
-    );
+    return Team.builder()
+        .name(name)
+        .lectureId(lectureId)
+        .build();
   }
 }

@@ -48,7 +48,7 @@ public class TeamController {
   }
 
   @GetMapping
-  public ResponseEntity<List<TeamResponseDto>> findTeamsByLecture(
+  public ResponseEntity<List<TeamResponseDto>> showTeamsByLecture(
       @PathVariable Long lectureId,
       @Auth AuthInfo authInfo
   ) {
