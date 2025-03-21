@@ -3,9 +3,8 @@ package com.gatheria.service;
 import com.gatheria.domain.Lecture;
 import com.gatheria.domain.Student;
 import com.gatheria.domain.type.AuthInfo;
-import com.gatheria.domain.type.MemberRole;
 import com.gatheria.dto.request.LectureCreateRequestDto;
-import com.gatheria.dto.response.LectureJoinResponse;
+import com.gatheria.dto.response.LectureJoinResponseDto;
 import com.gatheria.dto.response.LectureResponseDto;
 import com.gatheria.mapper.LectureMapper;
 import com.gatheria.mapper.MemberMapper;
@@ -27,9 +26,10 @@ public class LectureService {
 
   @Transactional
   public void createLecture(LectureCreateRequestDto request, AuthInfo authInfo) {
-    if (authInfo.getRole() != MemberRole.INSTRUCTOR) {
-      throw new RuntimeException();
+    if (!authInfo.isInstructor()) {
+      throw new RuntimeException("교수자 권한이 필요");
     }
+
     Lecture lecture = Lecture.of(request.getName(), authInfo.getInstructorId(),
         request.getClassSize());
     lectureMapper.insertLecture(lecture);
@@ -72,9 +72,9 @@ public class LectureService {
     return LectureResponseDto.from(lectures);
   }
 
-  public LectureResponseDto findLectureByCodeAndId(String lectureCode, Long lectureId,
+  public LectureResponseDto findLectureByCodeAndId(Long lectureId,
       AuthInfo authInfo) {
-    Lecture lecture = lectureMapper.findByCodeAndId(lectureCode, lectureId);
+    Lecture lecture = lectureMapper.findLectureById(lectureId);
 
     if (lecture == null) {
       throw new RuntimeException();
@@ -88,7 +88,7 @@ public class LectureService {
   }
 
   @Transactional
-  public LectureJoinResponse joinLecture(String code, AuthInfo authInfo) {
+  public LectureJoinResponseDto joinLecture(String code, AuthInfo authInfo) {
     if (!authInfo.isStudent()) {
       throw new RuntimeException("학생만 강의에 참여 가능");
     }
@@ -111,8 +111,6 @@ public class LectureService {
 
     lectureMapper.insertLectureStudent(student.getId(), lecture.getId());
 
-    return LectureJoinResponse.from(lecture);
+    return LectureJoinResponseDto.from(lecture);
   }
-
-
 }

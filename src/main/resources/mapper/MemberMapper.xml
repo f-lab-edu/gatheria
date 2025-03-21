@@ -1,70 +1,108 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.gatheria.mapper.MemberMapper">
 
-    <!-- ResultMap -->
-    <resultMap id="InstructorResultMap" type="com.gatheria.domain.Instructor">
-        <id property="id" column="instructor_id"/>
-        <result property="email" column="email"/>
-        <result property="password" column="password"/>
-        <result property="name" column="name"/>
-        <result property="phone" column="phone"/>
-        <result property="active" column="active"/>
-        <result property="affiliation" column="affiliation"/>
-    </resultMap>
+  <!-- ResultMap -->
+  <resultMap id="InstructorResultMap" type="com.gatheria.domain.Instructor">
+    <id property="id" column="instructor_id"/>
+    <result property="email" column="email"/>
+    <result property="password" column="password"/>
+    <result property="name" column="name"/>
+    <result property="phone" column="phone"/>
+    <result property="active" column="active"/>
+    <result property="affiliation" column="affiliation"/>
+  </resultMap>
 
-    <select id="existsByEmail" resultType="boolean">
-        SELECT COUNT(*) > 0 FROM members WHERE email = #{email}
-    </select>
+  <resultMap id="studentResultMap" type="com.gatheria.domain.Student">
+    <id column="id" property="id"/>
+    <result column="email" property="email"/>
+    <result column="password" property="password"/>
+    <result column="name" property="name"/>
+    <result column="phone" property="phone"/>
+  </resultMap>
 
-    <insert id="insertMember" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO members (email, password, name, phone, active, created_at, updated_at)
-        VALUES (#{email}, #{password}, #{name}, #{phone}, #{active}, NOW(), NOW())
-    </insert>
+  <select id="existsByEmail" resultType="boolean">
+    SELECT COUNT(*) > 0
+    FROM members
+    WHERE email = #{email}
+  </select>
 
-
-    <insert id="insertInstructor">
-        INSERT INTO instructors (member_id, affiliation, created_at, updated_at)
-        VALUES (#{id}, #{affiliation}, NOW(), NOW())
-    </insert>
-
-    <insert id="insertStudent">
-        INSERT INTO students (member_id, created_at, updated_at)
-        VALUES (#{id}, NOW(), NOW())
-    </insert>
-
+  <insert id="insertMember" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO members (email, password, name, phone, active, created_at, updated_at)
+    VALUES (#{email}, #{password}, #{name}, #{phone}, #{active}, NOW(), NOW())
+  </insert>
 
 
-    <select id="findPendingInstructors" resultMap="InstructorResultMap">
-        SELECT members.*, instructors.id as instructor_id, instructors.affiliation
-        FROM members
-                 JOIN instructors ON members.id = instructors.member_id
-        WHERE members.active = false
-        LIMIT #{size} OFFSET #{offset}
-    </select>
+  <insert id="insertInstructor">
+    INSERT INTO instructors (member_id, affiliation, created_at, updated_at)
+    VALUES (#{id}, #{affiliation}, NOW(), NOW())
+  </insert>
 
-    <select id="countPendingInstructors" resultType="int">
-        SELECT COUNT(*)
-        FROM members
-                 JOIN instructors ON members.id = instructors.member_id
-        WHERE members.active = false
-    </select>
+  <insert id="insertStudent">
+    INSERT INTO students (member_id, created_at, updated_at)
+    VALUES (#{id}, NOW(), NOW())
+  </insert>
 
-    <select id="findInstructorByID" resultMap="InstructorResultMap">
-        SELECT members.*, instructors.id as instructor_id, instructors.affiliation
-        FROM members
-                 JOIN instructors ON members.id = instructors.member_id
-        WHERE instructors.id = #{id}
-    </select>
 
-    <update id="updateInstructorActivateStatus">
-        UPDATE members
-        SET active = #{active}
-        WHERE id = (
-            SELECT member_id
-            FROM instructors
-            WHERE id = #{id}
-        )
-    </update>
+  <select id="findPendingInstructors" resultMap="InstructorResultMap">
+    SELECT members.*, instructors.id as instructor_id, instructors.affiliation
+    FROM members
+           JOIN instructors ON members.id = instructors.member_id
+    WHERE members.active = false
+    LIMIT #{size} OFFSET #{offset}
+  </select>
+
+  <select id="countPendingInstructors" resultType="int">
+    SELECT COUNT(*)
+    FROM members
+           JOIN instructors ON members.id = instructors.member_id
+    WHERE members.active = false
+  </select>
+
+  <select id="findInstructorByID" resultMap="InstructorResultMap">
+    SELECT members.*, instructors.id as instructor_id, instructors.affiliation
+    FROM members
+           JOIN instructors ON members.id = instructors.member_id
+    WHERE instructors.id = #{id}
+  </select>
+
+  <update id="updateInstructorActivateStatus">
+    UPDATE members
+    SET active = #{active}
+    WHERE id = (SELECT member_id
+                FROM instructors
+                WHERE id = #{id})
+  </update>
+
+
+  <select id="findStudentInfoMapByIds" resultType="com.gatheria.dto.StudentInfoResponseDto">
+    SELECT
+    s.id AS studentId,
+    m.name,
+    m.email
+    FROM students s
+    JOIN members m ON s.member_id = m.id
+    WHERE s.id IN
+    <foreach collection="studentIds" item="id" open="(" separator="," close=")">
+      #{id}
+    </foreach>
+  </select>
+
+
+  <select id="findStudentInfoMapByIds"
+    resultType="com.gatheria.dto.response.StudentInfoResponseDto">
+    SELECT
+    s.id AS studentId,
+    m.name,
+    m.email
+    FROM students s
+    JOIN members m ON s.member_id = m.id
+    WHERE s.id IN
+    <foreach collection="studentIds" item="id" open="(" separator="," close=")">
+      #{id}
+    </foreach>
+  </select>
+
 
 </mapper>
