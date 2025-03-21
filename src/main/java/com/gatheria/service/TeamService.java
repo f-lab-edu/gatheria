@@ -4,15 +4,15 @@ import com.gatheria.domain.Lecture;
 import com.gatheria.domain.Team;
 import com.gatheria.domain.TeamMember;
 import com.gatheria.domain.type.AuthInfo;
-import com.gatheria.domain.type.MemberRole;
-import com.gatheria.dto.response.MemberDto;
-import com.gatheria.dto.response.StudentResponseDto;
+import com.gatheria.dto.response.StudentInfoResponseDto;
 import com.gatheria.dto.response.TeamResponseDto;
 import com.gatheria.mapper.LectureMapper;
 import com.gatheria.mapper.MemberMapper;
 import com.gatheria.mapper.TeamMapper;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -38,67 +38,43 @@ public class TeamService {
   @Transactional
   public void autoAssignTeams(Long lectureId, int teamSize, AuthInfo authInfo) {
 
-    validateInstructorAuth(authInfo);
-
-    validateLectureAccess(lectureId, authInfo);
+    validateLectureAccessForInstructor(lectureId, authInfo);
 
     List<Team> existingTeams = teamMapper.findTeamsByLectureId(lectureId);
-
     if (!existingTeams.isEmpty()) {
-      throw new IllegalStateException("");
+      throw new IllegalStateException("이미 팀이 존재하는 수업입니다");
     }
 
-    List<Long> studentIds = lectureMapper.findStudentIdsByLectureId(lectureId);
+    List<Long> studentIds = getEnrolledStudentIds(lectureId);
     if (studentIds.isEmpty()) {
-      throw new IllegalArgumentException("");
+      throw new IllegalArgumentException("등록된 학생이 없다.");
     }
 
     Collections.shuffle(studentIds);
 
     int totalStudents = studentIds.size();
     int teamCount = totalStudents / teamSize;
-    List<Team> newTeams = new ArrayList<>();
 
-    for (int i = 0; i < teamCount; i++) {
-      String teamName = String.valueOf('A' + i);
-      Team newTeam = Team.of(teamName, lectureId);
-      newTeams.add(newTeam);
-    }
-
+    List<Team> newTeams = Team.createTeams(lectureId, teamCount);
     teamMapper.saveTeams(newTeams);
 
-    List<TeamMember> teamMembers = new ArrayList<>();
-    int extraCount = totalStudents % teamCount;
-
-    int studentIdx = 0;
-    for (int i = 0; i < teamCount; i++) {
-      int memberCount;
-      if (i < extraCount) {
-        memberCount = teamSize + 1;
-      } else {
-        memberCount = teamSize;
-      }
-
-      for (int j = 0; j < memberCount; j++) {
-        Long studentId = studentIds.get(studentIdx++);
-        Long teamID = newTeams.get(i).getId();
-        TeamMember teamMember = TeamMember.of(teamID, studentId, lectureId);
-        teamMembers.add(teamMember);
-      }
-
-    }
-
+    List<TeamMember> teamMembers = TeamMember.createTeamMembers(newTeams, studentIds, lectureId,
+        teamSize);
     teamMapper.saveTeamMembers(teamMembers);
   }
 
-  public void manualAssignTeams(Long lectureId, Long teamId, Long studentId, AuthInfo authInfo) {
-    //TODO : 학생이 그 수업에 있는지 검증하는 로직이 빠짐
 
-    validateInstructorAuth(authInfo);
-    validateLectureAccess(lectureId, authInfo);
+  public void manualAssignTeams(Long lectureId, Long teamId, Long studentId, AuthInfo authInfo) {
+
+    validateLectureAccessForInstructor(lectureId, authInfo);
+
+    boolean isStudentEnrolled = lectureMapper.existEnrollmentByStudentIdAndLectureID(
+        studentId, lectureId);
+    if (!isStudentEnrolled) {
+      throw new IllegalArgumentException("수업에 등록되지 않은 학생");
+    }
 
     List<Team> existingTeams = teamMapper.findTeamsByLectureId(lectureId);
-
     if (existingTeams.isEmpty()) {
       throw new IllegalStateException("자동배정 필요");
     }
@@ -106,120 +82,160 @@ public class TeamService {
     Team targetTeam = validateTeam(teamId, lectureId);
 
     TeamMember existingMember = teamMapper.findTeamMemberByStudentIdAndLectureId(studentId,
-        targetTeam.getLectureId());
+        lectureId);
 
     if (existingMember == null) {
-      TeamMember newMember = TeamMember.of(targetTeam.getId(), studentId,
-          targetTeam.getLectureId());
-      teamMapper.saveTeamMembers(Collections.singletonList(newMember));
+      TeamMember newMember = TeamMember.of(teamId, studentId, lectureId);
+      teamMapper.saveTeamMember(newMember);
     } else {
       existingMember.updateTeamId(targetTeam.getId());
       teamMapper.updateTeamMember(existingMember);
     }
+
   }
 
-  public List<TeamResponseDto> getTeamsByLectureId(Long lectureId, AuthInfo authInfo) {
-    validateLectureAccess(lectureId, authInfo);
+  public List<TeamResponseDto> getTeamsWithStudentsByLecture(Long lectureId, AuthInfo authInfo) {
+    validateLectureAccessForInstructor(lectureId, authInfo);
 
     List<Team> teams = teamMapper.findTeamsByLectureId(lectureId);
 
+    List<Long> studentIds = lectureMapper.findStudentIdsByLectureId(lectureId);
+
+    Map<Long, StudentInfoResponseDto> studentDtoMap = memberMapper.findStudentInfoMapByIds(
+        studentIds);
+
     List<TeamMember> teamMembers = teamMapper.findTeamMembersByLectureId(lectureId);
 
-    List<Long> studentIds = teamMembers.stream().map(TeamMember::getStudentId).toList();
+    HashMap<Long, List<StudentInfoResponseDto>> teamStudentsMap = new HashMap<>();
+    HashSet<Long> assignedStudentIds = new HashSet<>();
 
-    List<Long> memberIds = memberMapper.findMemberIdsByStudentIds(studentIds);
+    for (TeamMember member : teamMembers) {
+      Long studentId = member.getStudentId();
+      StudentInfoResponseDto studentDto = studentDtoMap.get(studentId);
 
-    List<MemberDto> memberDtos = memberMapper.findMembersByIds(memberIds);
+      if (studentDto != null) {
 
-    Map<Long, MemberDto> studentMap = memberDtos.stream()
-        .collect(Collectors.toMap(MemberDto::getId, m -> m));
+        teamStudentsMap.computeIfAbsent(member.getTeamId(), k -> new ArrayList<>())
+            .add(studentDto);
+        assignedStudentIds.add(studentId);
+      }
 
-    Map<Long, List<StudentResponseDto>> studentByTeam = teamMembers.stream()
-        .collect(Collectors.groupingBy(
-            TeamMember::getTeamId, Collectors.mapping(
-                member -> {
-                  Long studentId = member.getStudentId();
-                  int index = studentIds.indexOf(studentId);
-                  if (index == -1) {
-                    return null;
-                  }
-
-                  Long memberId = memberIds.get(index);
-                  MemberDto matchedMember = studentMap.get(memberId);
-
-                  return matchedMember != null ? StudentResponseDto.of(matchedMember) : null;
-                },
-                Collectors.filtering(Objects::nonNull, Collectors.toList())
-            )
-        ));
-
-    return teams.stream()
+    }
+    List<TeamResponseDto> resultList = teams.stream()
         .map(team -> TeamResponseDto.of(
             team.getId(),
             team.getName(),
             lectureId,
-            studentByTeam.getOrDefault(team.getId(), Collections.emptyList())
-        )).toList();
+            teamStudentsMap.getOrDefault(team.getId(), Collections.emptyList())
+        ))
+        .collect(Collectors.toList());
+
+    List<StudentInfoResponseDto> unassignedStudents = studentIds.stream()
+        .filter(studentId -> !assignedStudentIds.contains(studentId))
+        .map(studentDtoMap::get)
+        .filter(Objects::nonNull)
+        .collect(Collectors.toList());
+
+    if (!unassignedStudents.isEmpty()) {
+      resultList.add(TeamResponseDto.of(null, "미배정", lectureId, unassignedStudents));
+    }
+
+    return resultList;
   }
 
-  public TeamResponseDto getTeamByTeamId(Long lectureId, Long teamId, AuthInfo authInfo) {
-    //TODO : 매핑 문제 getTeamsByLectureId 참고해서 메소드 수정하기
-    validateLectureAccess(lectureId, authInfo);
 
-    Team team = teamMapper.findTeamByTeamId(teamId);
-    if (team == null || !team.getLectureId().equals(lectureId)) {
-      throw new IllegalArgumentException("해당 강의에 없는 팀");
+  public TeamResponseDto getTeamByTeamId(Long lectureId, Long teamId, AuthInfo authInfo) {
+
+    validateLectureAccessForInstructor(lectureId, authInfo);
+
+    Team team = validateTeam(teamId, lectureId);
+    if (!Objects.equals(team.getLectureId(), lectureId)) {
+      throw new IllegalArgumentException("유효하지 않은 팀");
     }
 
     List<TeamMember> teamMembers = teamMapper.findTeamMembersByTeamId(teamId);
 
     if (teamMembers.isEmpty()) {
-      return TeamResponseDto.of(team.getId(), team.getName(), lectureId, Collections.emptyList());
+      return TeamResponseDto.of(teamId, team.getName(), lectureId, Collections.emptyList());
     }
 
-    List<Long> studentIds = teamMembers.stream().map(TeamMember::getStudentId).toList();
-
-    List<MemberDto> studentDtos = memberMapper.findStudentsByIds(studentIds);
-
-    Map<Long, MemberDto> studentMap = studentDtos.stream()
-        .collect(Collectors.toMap(MemberDto::getId, m -> m));
-
-    List<StudentResponseDto> studentResponses = teamMembers.stream()
-        .map(member -> StudentResponseDto.of(studentMap.get(member.getStudentId())))
+    List<Long> studentIds = teamMembers.stream()
+        .map(TeamMember::getStudentId)
         .toList();
 
-    return TeamResponseDto.of(team.getId(), team.getName(), lectureId, studentResponses);
+    Map<Long, StudentInfoResponseDto> studentDtoMap = memberMapper.findStudentInfoMapByIds(
+        studentIds);
+
+    List<StudentInfoResponseDto> students = teamMembers.stream()
+        .map(member -> studentDtoMap.get(member.getStudentId()))
+        .filter(Objects::nonNull)
+        .toList();
+
+    return TeamResponseDto.of(team.getId(), team.getName(), lectureId, students);
   }
 
 
-  private void validateInstructorAuth(AuthInfo authInfo) {
-    if (authInfo.getRole() != MemberRole.INSTRUCTOR) {
-      throw new RuntimeException();
+  public TeamResponseDto getMyTeamInfoInLecture(Long lectureId, AuthInfo authInfo) {
+    validateLectureAccessForStudent(lectureId, authInfo);
+
+    Long studentId = authInfo.getStudentId();
+
+    TeamMember myTeamMember = teamMapper.findTeamMemberByLectureIdAndStudentId(lectureId,
+        studentId);
+
+    if (myTeamMember == null) {
+      return TeamResponseDto.of(null, "미배정", lectureId, List.of());
     }
+
+    Team team = teamMapper.findTeamByTeamId(myTeamMember.getTeamId());
+
+    List<TeamMember> teamMembers = teamMapper.findTeamMembersByTeamId(team.getId());
+
+    List<Long> studentIds = teamMembers.stream()
+        .map(TeamMember::getStudentId)
+        .toList();
+
+    Map<Long, StudentInfoResponseDto> studentDtoMap = memberMapper.findStudentInfoMapByIds(
+        studentIds);
+
+    List<StudentInfoResponseDto> students = teamMembers.stream()
+        .map(member -> studentDtoMap.get(member.getStudentId()))
+        .filter(Objects::nonNull)
+        .toList();
+
+    return TeamResponseDto.of(team.getId(), team.getName(), lectureId, students);
   }
 
-  private void validateLectureAccess(long lectureId, AuthInfo authInfo) {
+
+  private void validateLectureAccessForInstructor(long lectureId, AuthInfo authInfo) {
     Lecture lecture = lectureMapper.findLectureById(lectureId);
-
     if (lecture == null) {
-      throw new IllegalArgumentException("Invalid Lecture");
+      throw new IllegalArgumentException("수업을 찾을 수 없습니다");
     }
 
-    if (authInfo.getRole() == MemberRole.INSTRUCTOR) {
-      if (!Objects.equals(lecture.getInstructorId(), authInfo.getMemberId())) {
-        throw new IllegalArgumentException("교수자는 해당 수업에 접근 권한 x");
-      }
-    } else if (authInfo.getRole() == MemberRole.STUDENT) {
-      boolean isEnrolled = lectureMapper.existEnrollmentByStudentIdAndLectureID(
-          authInfo.getMemberId(), lectureId);
-      if (!isEnrolled) {
-        throw new IllegalArgumentException("학생이 해당 수업에 등록 x");
-      }
+    if (!authInfo.isInstructor()) {
+      throw new IllegalArgumentException("접근 권한이 없습니다 (역할 아님)");
+    }
 
-    } else {
-      throw new IllegalArgumentException("Invalid Role");
+    if (!Objects.equals(lecture.getInstructorId(), authInfo.getInstructorId())) {
+      throw new IllegalArgumentException("해당 수업에 대한 접근 권한이 없습니다");
     }
   }
+
+
+  private void validateLectureAccessForStudent(long lectureId, AuthInfo authInfo) {
+    if (!authInfo.isStudent()) {
+      throw new IllegalArgumentException("접근 권한이 없습니다 (역할 아님)");
+    }
+
+    boolean isEnrolled = lectureMapper.existEnrollmentByStudentIdAndLectureID(
+        authInfo.getStudentId(), lectureId);
+
+    if (!isEnrolled) {
+      throw new IllegalArgumentException("해당 수업에 등록되지 않았습니다");
+    }
+  }
+
 
   private Team validateTeam(Long teamId, Long lectureId) {
     Team targetTeam = teamMapper.findTeamByTeamId(teamId);
@@ -229,5 +245,8 @@ public class TeamService {
     return targetTeam;
   }
 
+  private List<Long> getEnrolledStudentIds(Long lectureId) {
+    return lectureMapper.findStudentIdsByLectureId(lectureId);
+  }
 
 }

@@ -75,30 +75,34 @@
                 WHERE id = #{id})
   </update>
 
-  <select id="findStudentsByIds" parameterType="java.util.List"
-    resultType="com.gatheria.dto.response.MemberDto">
-    SELECT id, email, name, phone FROM members WHERE id IN
+
+  <select id="findStudentInfoMapByIds" resultType="com.gatheria.dto.StudentInfoResponseDto">
+    SELECT
+    s.id AS studentId,
+    m.name,
+    m.email
+    FROM students s
+    JOIN members m ON s.member_id = m.id
+    WHERE s.id IN
     <foreach collection="studentIds" item="id" open="(" separator="," close=")">
       #{id}
     </foreach>
   </select>
 
-  <select id="findMemberIdsByStudentIds" parameterType="java.util.List"
-    resultType="java.lang.Long">
-    SELECT member_id FROM students WHERE id IN
+
+  <select id="findStudentInfoMapByIds"
+    resultType="com.gatheria.dto.response.StudentInfoResponseDto">
+    SELECT
+    s.id AS studentId,
+    m.name,
+    m.email
+    FROM students s
+    JOIN members m ON s.member_id = m.id
+    WHERE s.id IN
     <foreach collection="studentIds" item="id" open="(" separator="," close=")">
       #{id}
     </foreach>
   </select>
 
 
-  <select id="findMembersByIds" parameterType="java.util.List"
-    resultType="com.gatheria.dto.response.MemberDto">
-    SELECT id, email, password, name, phone
-    FROM members
-    WHERE id IN
-    <foreach collection="memberIds" item="id" open="(" separator="," close=")">
-      #{id}
-    </foreach>
-  </select>
 </mapper>

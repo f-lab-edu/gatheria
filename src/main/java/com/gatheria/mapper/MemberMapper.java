@@ -3,9 +3,12 @@ package com.gatheria.mapper;
 import com.gatheria.domain.Instructor;
 import com.gatheria.domain.Member;
 import com.gatheria.domain.Student;
-import com.gatheria.dto.response.MemberDto;
+import com.gatheria.dto.response.StudentInfoResponseDto;
 import java.util.List;
+import java.util.Map;
+import org.apache.ibatis.annotations.MapKey;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
 @Mapper
@@ -30,9 +33,9 @@ public interface MemberMapper {
   @Select("SELECT * FROM students WHERE id = #{studentId}")
   Student findStudentById(Long studentId);
 
-  List<Long> findMemberIdsByStudentIds(List<Long> studentIds);
 
-  List<MemberDto> findMembersByIds(List<Long> memberIds);
-
-  List<MemberDto> findStudentsByIds(List<Long> studentIds);
+  //---TeamService.java ---
+  @MapKey("studentId")
+  Map<Long, StudentInfoResponseDto> findStudentInfoMapByIds(
+      @Param("studentIds") List<Long> studentIds);
 }

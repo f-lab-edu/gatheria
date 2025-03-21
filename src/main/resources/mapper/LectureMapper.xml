@@ -3,44 +3,69 @@
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.gatheria.mapper.LectureMapper">
 
-  <insert id="insertLecture" useGeneratedKeys="true" keyProperty="id">
-    INSERT INTO lectures (name,
-                          code,
-                          instructor_id,
-                          status,
-                          class_size,
-                          created_at,
-                          updated_at)
-    VALUES (#{name},
-            #{code},
-            #{instructorId},
-            'ACTIVE',
-            #{classSize},
-            #{createdAt},
-            #{updatedAt})
+  <!-- 수업 등록 -->
+  <insert id="insertLecture" parameterType="com.gatheria.domain.Lecture" useGeneratedKeys="true"
+    keyProperty="id">
+    INSERT INTO lectures (name, instructor_id, class_size, status, created_at, updated_at)
+    VALUES (#{name}, #{instructorId}, #{classSize}, #{status}, NOW(), NOW())
   </insert>
 
+  <!-- ID로 수업 조회 -->
+  <select id="findLectureById" resultType="com.gatheria.domain.Lecture">
+    SELECT *
+    FROM lectures
+    WHERE id = #{lectureId}
+  </select>
+
+  <!-- 수업 코드로 조회 -->
+  <select id="findLectureByCode" resultType="com.gatheria.domain.Lecture">
+    SELECT *
+    FROM lectures
+    WHERE code = #{code}
+  </select>
+
+  <!-- 교수자 ID로 수업 리스트 조회 -->
   <select id="findByInstructorId" resultType="com.gatheria.domain.Lecture">
     SELECT *
     FROM lectures
     WHERE instructor_id = #{instructorId}
   </select>
 
-  <select id="findStudentsByLectureId" resultType="com.gatheria.dto.response.StudentResponseDto">
-    SELECT m.id AS memberId,
-           m.name,
-           m.email
-    FROM members m
-           JOIN students s ON m.id = s.member_id
-           JOIN lecture_students ls ON s.id = ls.student_id
-    WHERE ls.lecture_id = #{lectureId}
+  <!-- 학생이 수강 중인 강의 ID 목록 -->
+  <select id="findLectureIdsByStudentId" resultType="long">
+    SELECT lecture_id
+    FROM lecture_students
+    WHERE student_id = #{studentId}
   </select>
 
-  <select id="findLecturesByIds" parameterType="java.util.List"
-    resultType="com.gatheria.domain.Lecture">
+  <!-- 강의 ID 리스트로 강의들 조회 -->
+  <select id="findLecturesByIds" resultType="com.gatheria.domain.Lecture">
     SELECT * FROM lectures WHERE id IN
-    <foreach collection="list" item="id" open="(" separator="," close=")">
+    <foreach collection="lectureIds" item="id" open="(" close=")" separator=",">
       #{id}
     </foreach>
   </select>
+
+  <!-- 수강 여부 확인 -->
+  <select id="existEnrollmentByStudentIdAndLectureID" resultType="boolean">
+    SELECT EXISTS (SELECT 1
+                   FROM lecture_students
+                   WHERE student_id = #{studentId}
+                     AND lecture_id = #{lectureId})
+  </select>
+
+  <!-- 수강 신청 -->
+  <insert id="insertLectureStudent">
+    INSERT INTO lecture_students (student_id, lecture_id, created_at, updated_at)
+    VALUES (#{studentId}, #{lectureId}, NOW(), NOW())
+  </insert>
+
+  <!-- 수업에 등록된 학생 ID 조회 -->
+  <select id="findStudentIdsByLectureId" resultType="long">
+    SELECT student_id
+    FROM lecture_students
+    WHERE lecture_id = #{lectureId}
+  </select>
+
+
 </mapper>

@@ -3,16 +3,13 @@ package com.gatheria.service;
 import com.gatheria.domain.Lecture;
 import com.gatheria.domain.Student;
 import com.gatheria.domain.type.AuthInfo;
-import com.gatheria.domain.type.MemberRole;
 import com.gatheria.dto.request.LectureCreateRequestDto;
-import com.gatheria.dto.response.LectureJoinResponse;
+import com.gatheria.dto.response.LectureJoinResponseDto;
 import com.gatheria.dto.response.LectureResponseDto;
-import com.gatheria.dto.response.StudentResponseDto;
 import com.gatheria.mapper.LectureMapper;
 import com.gatheria.mapper.MemberMapper;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,9 +26,10 @@ public class LectureService {
 
   @Transactional
   public void createLecture(LectureCreateRequestDto request, AuthInfo authInfo) {
-    if (authInfo.getRole() != MemberRole.INSTRUCTOR) {
-      throw new RuntimeException();
+    if (!authInfo.isInstructor()) {
+      throw new RuntimeException("교수자 권한이 필요");
     }
+
     Lecture lecture = Lecture.of(request.getName(), authInfo.getInstructorId(),
         request.getClassSize());
     lectureMapper.insertLecture(lecture);
@@ -90,7 +88,7 @@ public class LectureService {
   }
 
   @Transactional
-  public LectureJoinResponse joinLecture(String code, AuthInfo authInfo) {
+  public LectureJoinResponseDto joinLecture(String code, AuthInfo authInfo) {
     if (!authInfo.isStudent()) {
       throw new RuntimeException("학생만 강의에 참여 가능");
     }
@@ -113,38 +111,6 @@ public class LectureService {
 
     lectureMapper.insertLectureStudent(student.getId(), lecture.getId());
 
-    return LectureJoinResponse.from(lecture);
-  }
-
-  public List<StudentResponseDto> getStudentsByLectureId(Long lectureId, AuthInfo authInfo) {
-
-    validateLectureAccess(lectureId, authInfo);
-
-    List<StudentResponseDto> students = lectureMapper.findStudentsByLectureId(lectureId);
-
-    return students;
-  }
-
-  private void validateLectureAccess(long lectureId, AuthInfo authInfo) {
-    Lecture lecture = lectureMapper.findLectureById(lectureId);
-
-    if (lecture == null) {
-      throw new IllegalArgumentException("Invalid Lecture");
-    }
-
-    if (authInfo.getRole() == MemberRole.INSTRUCTOR) {
-      if (!Objects.equals(lecture.getInstructorId(), authInfo.getMemberId())) {
-        throw new IllegalArgumentException("교수자는 해당 수업에 접근 권한 x");
-      }
-    } else if (authInfo.getRole() == MemberRole.STUDENT) {
-      boolean isEnrolled = lectureMapper.existEnrollmentByStudentIdAndLectureID(
-          authInfo.getMemberId(), lectureId);
-      if (!isEnrolled) {
-        throw new IllegalArgumentException("학생이 해당 수업에 등록 x");
-      }
-
-    } else {
-      throw new IllegalArgumentException("Invalid Role");
-    }
+    return LectureJoinResponseDto.from(lecture);
   }
 }

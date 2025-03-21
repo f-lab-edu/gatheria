@@ -52,7 +52,7 @@ public class TeamController {
       @PathVariable Long lectureId,
       @Auth AuthInfo authInfo
   ) {
-    List<TeamResponseDto> response = teamService.getTeamsByLectureId(lectureId, authInfo);
+    List<TeamResponseDto> response = teamService.getTeamsWithStudentsByLecture(lectureId, authInfo);
 
     return ResponseEntity.ok(response);
   }
@@ -65,6 +65,15 @@ public class TeamController {
   ) {
     TeamResponseDto response = teamService.getTeamByTeamId(lectureId, teamId, authInfo);
 
+    return ResponseEntity.ok(response);
+  }
+
+  @GetMapping("/myteam")
+  public ResponseEntity<TeamResponseDto> showMyTeam(
+      @PathVariable Long lectureId,
+      @Auth AuthInfo authInfo
+  ) {
+    TeamResponseDto response = teamService.getMyTeamInfoInLecture(lectureId, authInfo);
     return ResponseEntity.ok(response);
   }
 

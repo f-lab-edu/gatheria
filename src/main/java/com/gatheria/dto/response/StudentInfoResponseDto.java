@@ -1,17 +1,19 @@
 package com.gatheria.dto.response;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@AllArgsConstructor
+@Builder
 @NoArgsConstructor
-public class MemberDto {
+@AllArgsConstructor
+public class StudentInfoResponseDto {
 
-  private Long id;
-  private String email;
-  private String password;
+  private Long studentId;
   private String name;
-  private String phone;
+  private String email;
+
 }
+
