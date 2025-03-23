@@ -27,14 +27,17 @@ services:
   mysql-exporter:
     container_name: mysql-exporter
     image: prom/mysqld-exporter
-    environment:
-      - DATA_SOURCE_NAME=exporter:exporterpass@(mysql:3306)/
+    command:
+      '--config.my-cnf=/etc/mysql/exporter.cnf'
+    volumes:
+      - ./config/exporter.cnf:/etc/mysql/exporter.cnf:ro
     ports:
       - "9104:9104"
     depends_on:
       - mysql
     networks:
       - gatheria_network
+
   app:
     build:
       context: .
