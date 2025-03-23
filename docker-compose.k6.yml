@@ -1,0 +1,10 @@
+services:
+  k6:
+    image: grafana/k6:latest
+    volumes:
+      - ./script:/scripts
+    working_dir: /scripts
+    environment:
+      - SCRIPT=register.js
+    command: sh -c "k6 run --out=prometheus $SCRIPT"
+    network_mode: host

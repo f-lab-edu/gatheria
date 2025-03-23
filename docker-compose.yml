@@ -24,6 +24,17 @@ services:
     networks:
       - gatheria_network
 
+  mysql-exporter:
+    container_name: mysql-exporter
+    image: prom/mysqld-exporter
+    environment:
+      - DATA_SOURCE_NAME=exporter:exporterpass@(mysql:3306)/
+    ports:
+      - "9104:9104"
+    depends_on:
+      - mysql
+    networks:
+      - gatheria_network
   app:
     build:
       context: .
@@ -57,38 +68,6 @@ services:
     networks:
       - gatheria_network
 
-  prometheus:
-    image: prom/prometheus
-    container_name: prometheus
-    volumes:
-      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
-    ports:
-      - "9090:9090"
-    restart: always
-    networks:
-      - gatheria_network
-
-  grafana:
-    image: grafana/grafana
-    container_name: grafana
-    ports:
-      - "3001:3000"
-    restart: always
-    depends_on:
-      - prometheus
-    privileged: true
-    networks:
-      - gatheria_network
-
-  k6:
-    image: grafana/k6:latest
-    ports:
-      - "6565:6565"
-    volumes:
-      - ./script.js:/script.js
-    command: run /script.js
-    network_mode: host
-    
 volumes:
   mysql-data:
 

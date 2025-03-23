@@ -68,3 +68,6 @@ dist-ssr
 
 # Database files
 db/mysql/data/
+
+
+run-test.sh
