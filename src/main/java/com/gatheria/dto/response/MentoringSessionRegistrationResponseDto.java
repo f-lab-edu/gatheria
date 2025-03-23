@@ -1,5 +1,6 @@
 package com.gatheria.dto.response;
 
+import com.gatheria.domain.type.SessionParticipantStatus;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,11 +20,14 @@ public class MentoringSessionRegistrationResponseDto {
   private LocalDateTime sessionDate;
   private String message;
   private HttpStatus status;
+  private SessionParticipantStatus participantStatus;
+  private Long participantId;
 
   public static MentoringSessionRegistrationResponseDto success(
       Long sessionId,
       String sessionTitle,
-      LocalDateTime sessionDate) {
+      LocalDateTime sessionDate,
+      Long participantId) {
 
     return new MentoringSessionRegistrationResponseDto(
         true,
@@ -31,11 +35,42 @@ public class MentoringSessionRegistrationResponseDto {
         sessionTitle,
         sessionDate,
         null,
-        HttpStatus.OK
+        HttpStatus.OK,
+        SessionParticipantStatus.REGISTERED,
+        participantId
     );
   }
 
-  public static MentoringSessionRegistrationResponseDto fail(String message, HttpStatus status) {
-    return new MentoringSessionRegistrationResponseDto(false, null, null, null, message, status);
+  // 실패 응답 생성 (참가자 ID 없음)
+  public static MentoringSessionRegistrationResponseDto fail(
+      String message,
+      HttpStatus status) {
+    return new MentoringSessionRegistrationResponseDto(
+        false,
+        null,
+        null,
+        null,
+        message,
+        status,
+        null,
+        null
+    );
+  }
+
+  public static MentoringSessionRegistrationResponseDto rejected(
+      String message,
+      HttpStatus status,
+      Long sessionId,
+      Long participantId) {
+    return new MentoringSessionRegistrationResponseDto(
+        false,
+        sessionId,
+        null,
+        null,
+        message,
+        status,
+        SessionParticipantStatus.REJECTED,
+        participantId
+    );
   }
 }

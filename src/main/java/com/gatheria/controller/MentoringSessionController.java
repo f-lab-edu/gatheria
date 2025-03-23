@@ -5,6 +5,7 @@ import com.gatheria.domain.type.AuthInfo;
 import com.gatheria.dto.response.MentoringSessionRegistrationResponseDto;
 import com.gatheria.dto.response.MentoringSessionResponseDto;
 import com.gatheria.service.MentoringSessionService;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,9 +43,9 @@ public class MentoringSessionController {
   public ResponseEntity<MentoringSessionRegistrationResponseDto> joinMentoringSession(
       @PathVariable Long sessionId,
       @Auth AuthInfo authInfo) {
-
+    LocalDateTime requestTime = LocalDateTime.now();
     MentoringSessionRegistrationResponseDto response = mentoringSessionService.registerSession(
-        sessionId, authInfo);
+        sessionId, authInfo, requestTime);
 
     return ResponseEntity.status(response.getStatus()).body(response);
   }

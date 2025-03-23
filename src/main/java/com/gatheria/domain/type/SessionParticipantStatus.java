@@ -5,5 +5,6 @@ import lombok.Getter;
 @Getter
 public enum SessionParticipantStatus {
   REGISTERED,
-  CANCELLED
+  CANCELLED,
+  REJECTED
 }

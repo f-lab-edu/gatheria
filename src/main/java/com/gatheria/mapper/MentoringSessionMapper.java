@@ -21,9 +21,6 @@ public interface MentoringSessionMapper {
   @Options(useGeneratedKeys = true, keyProperty = "id")
   void insertSession(MentoringSession session);
 
-  @Select("SELECT * FROM session_participants WHERE session_id = #{sessionId} AND student_id = #{studentId}")
-  SessionParticipant findBySessionAndStudent(Long sessionId, Long memberId);
-
   @Update("UPDATE mentoring_sessions SET " +
       "current_participants = #{currentParticipants}, " +
       "status = #{status}, " +
@@ -32,18 +29,12 @@ public interface MentoringSessionMapper {
   void updateSession(MentoringSession session);
 
   @Insert("INSERT INTO session_participants " +
-      "(session_id, student_id, status, registration_time, cancelled_at) " +
+      "(session_id, student_id, request_at, registered_at, status, cancelled_at, rejected_at) " +
       "VALUES " +
-      "(#{sessionId}, #{studentId}, #{status}, #{registrationTime}, #{cancelledAt})")
+      "(#{sessionId}, #{studentId}, #{requestAt}, #{registeredAt}, #{status}, #{cancelledAt}, #{rejectedAt})")
   @Options(useGeneratedKeys = true, keyProperty = "id")
   void insertParticipant(SessionParticipant participant);
 
-  @Update("UPDATE session_participants SET " +
-      "status = #{status}, " +
-      "registration_time = #{registrationTime}, " +
-      "cancelled_at = #{cancelledAt} " +
-      "WHERE session_id = #{sessionId} AND student_id = #{studentId}")
-  void updateParticipant(SessionParticipant participant);
 
   @Select("SELECT * FROM mentoring_sessions WHERE id = #{sessionId}")
   MentoringSession getSession(Long sessionId);
@@ -59,4 +50,7 @@ public interface MentoringSessionMapper {
             AND sp.status = 'REGISTERED'
       """)
   List<MentoringSession> findSessionsByStudentId(Long studentId);
+
+  @Select("SELECT * FROM session_participants WHERE session_id = #{sessionId} AND student_id = #{studentId} ORDER BY request_at DESC LIMIT 1")
+  SessionParticipant findLatestBySessionAndStudent(Long sessionId, Long studentId);
 }
