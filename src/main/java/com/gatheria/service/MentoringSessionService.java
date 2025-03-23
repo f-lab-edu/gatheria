@@ -7,8 +7,10 @@ import com.gatheria.domain.type.MentoringStatus;
 import com.gatheria.domain.type.SessionParticipantStatus;
 import com.gatheria.dto.request.MentoringSessionCreateRequestDto;
 import com.gatheria.dto.response.MentoringSessionCreateResponseDto;
-import com.gatheria.dto.response.SessionRegistrationResponseDto;
+import com.gatheria.dto.response.MentoringSessionRegistrationResponseDto;
+import com.gatheria.dto.response.MentoringSessionResponseDto;
 import com.gatheria.mapper.MentoringSessionMapper;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -42,7 +44,8 @@ public class MentoringSessionService {
   }
 
   @Transactional
-  public SessionRegistrationResponseDto registerSession(Long sessionId, AuthInfo authInfo) {
+  public MentoringSessionRegistrationResponseDto registerSession(Long sessionId,
+      AuthInfo authInfo) {
     // TODO : AuthInfo 수정 PR 반영 이후 수정 필요
     if (!authInfo.isStudent()) {
       throw new RuntimeException("학생만 가능함");
@@ -51,25 +54,25 @@ public class MentoringSessionService {
     MentoringSession session = mentoringSessionMapper.getSession(sessionId);
 
     if (session == null) {
-      return SessionRegistrationResponseDto.fail("해당 세션이 존재x.", HttpStatus.NOT_FOUND);
+      return MentoringSessionRegistrationResponseDto.fail("해당 세션이 존재x.", HttpStatus.NOT_FOUND);
     }
 
     SessionParticipant existing = mentoringSessionMapper.findBySessionAndStudent(sessionId,
-        authInfo.getMemberId());
+        authInfo.getStudentId());
 
     if (existing != null && SessionParticipantStatus.REGISTERED == existing.getStatus()) {
-      return SessionRegistrationResponseDto.fail("이미 등록된 세션입니다.", HttpStatus.CONFLICT);
+      return MentoringSessionRegistrationResponseDto.fail("이미 등록된 세션입니다.", HttpStatus.CONFLICT);
     }
 
     if (session.getStatus() != MentoringStatus.WAITING_OPEN) {
-      return SessionRegistrationResponseDto.fail(
+      return MentoringSessionRegistrationResponseDto.fail(
           "현재 등록 불가 , 세션 상태: " + session.getStatus(),
           HttpStatus.BAD_REQUEST
       );
     }
 
     if (session.getCurrentParticipants() >= session.getMaxParticipants()) {
-      return SessionRegistrationResponseDto.fail("정원 초과", HttpStatus.CONFLICT);
+      return MentoringSessionRegistrationResponseDto.fail("정원 초과", HttpStatus.CONFLICT);
     }
 
     session.incrementCurrentParticipants();
@@ -79,14 +82,31 @@ public class MentoringSessionService {
       SessionParticipant.reRegister(existing);
       mentoringSessionMapper.updateParticipant(existing);
     } else {
-      SessionParticipant participant = SessionParticipant.of(sessionId, authInfo.getMemberId());
+      SessionParticipant participant = SessionParticipant.of(sessionId, authInfo.getStudentId());
       mentoringSessionMapper.insertParticipant(participant);
     }
 
-    return SessionRegistrationResponseDto.success(
+    return MentoringSessionRegistrationResponseDto.success(
         session.getId(),
         session.getTitle(),
         session.getSessionDate()
     );
+  }
+
+  public List<MentoringSessionResponseDto> getAllSessions() {
+    List<MentoringSession> sessions = mentoringSessionMapper.findAllSessions();
+    return MentoringSessionResponseDto.listOf(sessions);
+  }
+
+
+  public MentoringSessionResponseDto getSession(Long sessionId) {
+    MentoringSession session = mentoringSessionMapper.getSession(sessionId);
+    return MentoringSessionResponseDto.of(session);
+  }
+
+  public List<MentoringSessionResponseDto> getMySessions(AuthInfo authInfo) {
+    List<MentoringSession> sessions = mentoringSessionMapper.findSessionsByStudentId(
+        authInfo.getStudentId());
+    return MentoringSessionResponseDto.listOf(sessions);
   }
 }

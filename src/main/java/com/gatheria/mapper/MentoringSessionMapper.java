@@ -2,6 +2,7 @@ package com.gatheria.mapper;
 
 import com.gatheria.domain.MentoringSession;
 import com.gatheria.domain.SessionParticipant;
+import java.util.List;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
@@ -46,4 +47,16 @@ public interface MentoringSessionMapper {
 
   @Select("SELECT * FROM mentoring_sessions WHERE id = #{sessionId}")
   MentoringSession getSession(Long sessionId);
+
+  @Select("SELECT * FROM mentoring_sessions")
+  List<MentoringSession> findAllSessions();
+
+  @Select("""
+          SELECT ms.*
+          FROM mentoring_sessions ms
+          JOIN session_participants sp ON ms.id = sp.session_id
+          WHERE sp.student_id = #{studentId}
+            AND sp.status = 'REGISTERED'
+      """)
+  List<MentoringSession> findSessionsByStudentId(Long studentId);
 }

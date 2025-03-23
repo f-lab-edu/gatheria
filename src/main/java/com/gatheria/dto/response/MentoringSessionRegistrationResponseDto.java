@@ -11,7 +11,7 @@ import org.springframework.http.HttpStatus;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class SessionRegistrationResponseDto {
+public class MentoringSessionRegistrationResponseDto {
 
   private boolean success;
   private Long sessionId;
@@ -20,12 +20,12 @@ public class SessionRegistrationResponseDto {
   private String message;
   private HttpStatus status;
 
-  public static SessionRegistrationResponseDto success(
+  public static MentoringSessionRegistrationResponseDto success(
       Long sessionId,
       String sessionTitle,
       LocalDateTime sessionDate) {
 
-    return new SessionRegistrationResponseDto(
+    return new MentoringSessionRegistrationResponseDto(
         true,
         sessionId,
         sessionTitle,
@@ -35,7 +35,7 @@ public class SessionRegistrationResponseDto {
     );
   }
 
-  public static SessionRegistrationResponseDto fail(String message, HttpStatus status) {
-    return new SessionRegistrationResponseDto(false, null, null, null, message, status);
+  public static MentoringSessionRegistrationResponseDto fail(String message, HttpStatus status) {
+    return new MentoringSessionRegistrationResponseDto(false, null, null, null, message, status);
   }
 }
