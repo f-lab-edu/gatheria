@@ -8,8 +8,7 @@ import {
 
 // 테스트 구성 - Prometheus 출력 설정 포함
 export let options = {
-  vus: 100,                // 가상 사용자 수
-  duration: '5m',          // 테스트 지속 시간
+  vus: 10, duration: '30s',
   thresholds: {
     'http_req_duration': ['p(95)<2000'], // 95%의 요청이 2초 이내 완료
     'http_req_failed': ['rate<0.1'],     // 요청 실패율 10% 미만

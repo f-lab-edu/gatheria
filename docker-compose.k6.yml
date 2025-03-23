@@ -6,5 +6,5 @@ services:
     working_dir: /scripts
     environment:
       - SCRIPT=register.js
-    command: sh -c "k6 run --out=prometheus $SCRIPT"
+    command: run --summary-export=summary.json $SCRIPT
     network_mode: host
