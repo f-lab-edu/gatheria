@@ -68,14 +68,6 @@ public class MentoringSessionService {
       return MentoringSessionRegistrationResponseDto.fail("이미 등록된 세션입니다.", HttpStatus.CONFLICT);
     }
 
-    // 아직 대기 시작 전
-    if (session.getStatus() != MentoringStatus.WAITING_OPEN) {
-      return MentoringSessionRegistrationResponseDto.fail(
-          "현재 등록 불가 , 세션 상태: " + session.getStatus(),
-          HttpStatus.BAD_REQUEST
-      );
-    }
-
     // 현재 정원 초과인 상태인지 체크
     if (session.getCurrentParticipants() >= session.getMaxParticipants()) {
       SessionParticipant participant = SessionParticipant.of(sessionId, authInfo.getStudentId(),
@@ -87,6 +79,13 @@ public class MentoringSessionService {
           HttpStatus.CONFLICT,
           sessionId,
           participant.getId()
+      );
+    }
+
+    if (session.getStatus() != MentoringStatus.WAITING_OPEN) {
+      return MentoringSessionRegistrationResponseDto.fail(
+          "현재 등록 불가 , 세션 상태: " + session.getStatus(),
+          HttpStatus.BAD_REQUEST
       );
     }
 

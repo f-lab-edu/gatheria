@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
@@ -53,4 +54,13 @@ public interface MentoringSessionMapper {
 
   @Select("SELECT * FROM session_participants WHERE session_id = #{sessionId} AND student_id = #{studentId} ORDER BY request_at DESC LIMIT 1")
   SessionParticipant findLatestBySessionAndStudent(Long sessionId, Long studentId);
+
+  @Update("""
+          UPDATE mentoring_sessions
+          SET current_participants = current_participants + 1,
+              updated_at = NOW()
+          WHERE id = #{sessionId}
+            AND current_participants < max_participants
+      """)
+  int incrementParticipantCountIfNotFull(@Param("sessionId") Long sessionId);
 }

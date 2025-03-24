@@ -2,15 +2,21 @@ package com.gatheria.domain;
 
 import com.gatheria.domain.type.SessionParticipantStatus;
 import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class SessionParticipant {
 
   private Long id;
-  private final Long sessionId;
-  private final Long studentId;
-  private final LocalDateTime requestAt;
+  private Long sessionId;
+  private Long studentId;
+  private LocalDateTime requestAt;
   private LocalDateTime registeredAt;
   private SessionParticipantStatus status;
   private LocalDateTime cancelledAt;
