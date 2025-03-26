@@ -47,7 +47,6 @@ public class MentoringSessionService {
   @Transactional
   public MentoringSessionRegistrationResponseDto registerSession(Long sessionId,
       AuthInfo authInfo, LocalDateTime requestAt) {
-    // TODO : AuthInfo 수정 PR 반영 이후 수정 필요
     if (!authInfo.isStudent()) {
       throw new RuntimeException("학생만 가능함");
     }
@@ -92,10 +91,10 @@ public class MentoringSessionService {
     SessionParticipant participant = SessionParticipant.of(sessionId, authInfo.getStudentId(),
         requestAt);
     participant.completeRegistration();
-    mentoringSessionMapper.insertParticipant(participant);
+    mentoringSessionMapper.insertParticipant(participant); // 참여자 정보 저장(로그 참여자리스트)
 
-    session.incrementCurrentParticipants();
-    mentoringSessionMapper.updateSession(session);
+    session.incrementCurrentParticipants(); // 현재 참여자 수 증가
+    mentoringSessionMapper.updateSession(session); // 멘토링 세션 테이블 저장(상태랑 숫자)
 
     return MentoringSessionRegistrationResponseDto.success(
         session.getId(),

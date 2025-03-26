@@ -32,7 +32,7 @@ export default function () {
 
   // 3. 멘토링 신청
   const joinRes = http.post(
-      'http://host.docker.internal:8080/api/mentoring/2/join',
+      'http://host.docker.internal:8080/api/mentoring/3/join',
       null,
       {
         headers: {
