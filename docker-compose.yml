@@ -24,6 +24,20 @@ services:
     networks:
       - gatheria_network
 
+  mysql-exporter:
+    container_name: mysql-exporter
+    image: prom/mysqld-exporter
+    command:
+      '--config.my-cnf=/etc/mysql/exporter.cnf'
+    volumes:
+      - ./config/exporter.cnf:/etc/mysql/exporter.cnf:ro
+    ports:
+      - "9104:9104"
+    depends_on:
+      - mysql
+    networks:
+      - gatheria_network
+
   app:
     build:
       context: .
@@ -54,39 +68,6 @@ services:
     container_name: react-app
     ports:
       - "3000:80"
-    networks:
-      - gatheria_network
-
-  prometheus:
-    image: prom/prometheus
-    container_name: prometheus
-    volumes:
-      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
-    ports:
-      - "9090:9090"
-    restart: always
-    networks:
-      - gatheria_network
-
-  grafana:
-    image: grafana/grafana
-    container_name: grafana
-    ports:
-      - "3001:3000"
-    restart: always
-    depends_on:
-      - prometheus
-    privileged: true
-    networks:
-      - gatheria_network
-
-  k6:
-    image: grafana/k6:latest
-    ports:
-      - "6565:6565"
-    volumes:
-      - ./scripts/k6/script.js:/script.js
-    command: run /script.js
     networks:
       - gatheria_network
 

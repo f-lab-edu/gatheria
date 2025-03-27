@@ -35,6 +35,14 @@ management:
       exposure:
         include: prometheus
 
+  endpoint:
+    prometheus:
+      enabled: true
+
+  prometheus:
+    metrics:
+      export:
+        enabled: true
 jwt:
   secret: ${JWT_SECRET}
   expiration: 3600000
