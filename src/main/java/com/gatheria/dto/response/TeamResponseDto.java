@@ -6,9 +6,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-/**
- * List<TeamResponseDto>  // ← 여러 팀 └── List<StudentInfoResponseDto>  // ← 팀 안의 학생들
- */
 @Getter
 @Builder
 @NoArgsConstructor

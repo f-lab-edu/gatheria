@@ -1,8 +1,6 @@
 package com.gatheria.domain;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 
@@ -30,31 +28,5 @@ public class TeamMember extends BaseEntity {
         .build();
   }
 
-  public void updateTeamId(Long newTeamId) {
-    this.teamId = newTeamId;
-  }
-
-  public static List<TeamMember> createTeamMembers(List<Team> teams, List<Long> studentIds,
-      Long lectureId, int teamSize) {
-    List<TeamMember> teamMembers = new ArrayList<>();
-
-    int totalStudents = studentIds.size();
-    int extraCount = totalStudents % teams.size();
-
-    int studentIdx = 0;
-    for (int i = 0; i < teams.size(); i++) {
-      int memberCount = (i < extraCount) ? teamSize + 1 : teamSize;
-      for (int j = 0; j < memberCount; j++) {
-        if (studentIdx < studentIds.size()) {
-          Long studentId = studentIds.get(studentIdx++);
-          Long teamId = teams.get(i).getId();
-          teamMembers.add(TeamMember.of(teamId, studentId, lectureId));
-        }
-      }
-    }
-
-    return teamMembers;
-
-  }
 
 }

@@ -3,6 +3,7 @@ package com.gatheria.service;
 import com.gatheria.domain.Lecture;
 import com.gatheria.domain.Team;
 import com.gatheria.domain.TeamMember;
+import com.gatheria.domain.TeamMembers;
 import com.gatheria.domain.type.AuthInfo;
 import com.gatheria.dto.response.StudentInfoResponseDto;
 import com.gatheria.dto.response.TeamResponseDto;
@@ -58,9 +59,8 @@ public class TeamService {
     List<Team> newTeams = Team.createTeams(lectureId, teamCount);
     teamMapper.saveTeams(newTeams);
 
-    List<TeamMember> teamMembers = TeamMember.createTeamMembers(newTeams, studentIds, lectureId,
-        teamSize);
-    teamMapper.saveTeamMembers(teamMembers);
+    TeamMembers teamMembers = TeamMembers.create(newTeams, studentIds, lectureId, teamSize);
+    teamMapper.saveTeamMembers(teamMembers.getMembers());
   }
 
 
@@ -79,18 +79,10 @@ public class TeamService {
       throw new IllegalStateException("자동배정 필요");
     }
 
-    Team targetTeam = validateTeam(teamId, lectureId);
+    validateTeam(teamId, lectureId);
 
-    TeamMember existingMember = teamMapper.findTeamMemberByStudentIdAndLectureId(studentId,
-        lectureId);
-
-    if (existingMember == null) {
-      TeamMember newMember = TeamMember.of(teamId, studentId, lectureId);
-      teamMapper.saveTeamMember(newMember);
-    } else {
-      existingMember.updateTeamId(targetTeam.getId());
-      teamMapper.updateTeamMember(existingMember);
-    }
+    TeamMember teamMember = TeamMember.of(teamId, studentId, lectureId);
+    teamMapper.upsertTeamMember(teamMember);
 
   }
 
@@ -148,10 +140,8 @@ public class TeamService {
 
     validateLectureAccessForInstructor(lectureId, authInfo);
 
-    Team team = validateTeam(teamId, lectureId);
-    if (!Objects.equals(team.getLectureId(), lectureId)) {
-      throw new IllegalArgumentException("유효하지 않은 팀");
-    }
+    validateTeam(teamId, lectureId);
+    Team team = teamMapper.findTeamByTeamId(teamId);
 
     List<TeamMember> teamMembers = teamMapper.findTeamMembersByTeamId(teamId);
 
@@ -237,12 +227,11 @@ public class TeamService {
   }
 
 
-  private Team validateTeam(Long teamId, Long lectureId) {
+  private void validateTeam(Long teamId, Long lectureId) {
     Team targetTeam = teamMapper.findTeamByTeamId(teamId);
     if (targetTeam == null || !Objects.equals(targetTeam.getLectureId(), lectureId)) {
       throw new IllegalArgumentException("유효하지 않은 팀.");
     }
-    return targetTeam;
   }
 
   private List<Long> getEnrolledStudentIds(Long lectureId) {

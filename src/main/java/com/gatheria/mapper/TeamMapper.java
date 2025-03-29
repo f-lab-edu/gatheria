@@ -27,4 +27,6 @@ public interface TeamMapper {
   TeamMember findTeamMemberByLectureIdAndStudentId(Long lectureId, Long studentId);
 
   Team findTeamByTeamId(Long teamId);
+
+  void upsertTeamMember(TeamMember teamMember);
 }

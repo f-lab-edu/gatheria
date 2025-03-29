@@ -33,8 +33,6 @@ public interface MemberMapper {
   @Select("SELECT * FROM students WHERE id = #{studentId}")
   Student findStudentById(Long studentId);
 
-
-  //---TeamService.java ---
   @MapKey("studentId")
   Map<Long, StudentInfoResponseDto> findStudentInfoMapByIds(
       @Param("studentIds") List<Long> studentIds);

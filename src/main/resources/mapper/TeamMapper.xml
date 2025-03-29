@@ -81,4 +81,10 @@
     </foreach>
   </insert>
 
+  <insert id="upsertTeamMember">
+    INSERT INTO team_members (team_id, student_id, lecture_id)
+    VALUES (#{teamId}, #{studentId}, #{lectureId})
+    ON DUPLICATE KEY UPDATE team_id    = VALUES(team_id),
+                            updated_at = CURRENT_TIMESTAMP
+  </insert>
 </mapper>
