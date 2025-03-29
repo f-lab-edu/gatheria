@@ -1,29 +1,28 @@
 package com.gatheria.domain;
 
 import java.time.LocalDateTime;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Getter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class LectureStudent {
+@SuperBuilder
+public class LectureStudent extends BaseEntity {
 
-  private Long id;
   private Long lectureId;
   private Long studentId;
-  private LocalDateTime createdAt;
-  private LocalDateTime updatedAt;
 
-  public static LectureStudent create(Long lectureId, Long studentId) {
+
+  protected LectureStudent(Long id, LocalDateTime createdAt, LocalDateTime updatedAt,
+      Long lectureId, Long studentId) {
+    super(id, createdAt, updatedAt);
+    this.lectureId = lectureId;
+    this.studentId = studentId;
+  }
+
+  public static LectureStudent of(Long lectureId, Long studentId) {
     return LectureStudent.builder()
         .lectureId(lectureId)
         .studentId(studentId)
-        .createdAt(LocalDateTime.now())
-        .updatedAt(LocalDateTime.now())
         .build();
   }
 }

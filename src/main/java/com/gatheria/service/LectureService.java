@@ -3,9 +3,8 @@ package com.gatheria.service;
 import com.gatheria.domain.Lecture;
 import com.gatheria.domain.Student;
 import com.gatheria.domain.type.AuthInfo;
-import com.gatheria.domain.type.MemberRole;
 import com.gatheria.dto.request.LectureCreateRequestDto;
-import com.gatheria.dto.response.LectureJoinResponse;
+import com.gatheria.dto.response.LectureJoinResponseDto;
 import com.gatheria.dto.response.LectureResponseDto;
 import com.gatheria.mapper.LectureMapper;
 import com.gatheria.mapper.MemberMapper;
@@ -27,18 +26,15 @@ public class LectureService {
 
   @Transactional
   public void createLecture(LectureCreateRequestDto request, AuthInfo authInfo) {
-    if (authInfo.getRole() != MemberRole.INSTRUCTOR) {
-      throw new RuntimeException();
-    }
+    authInfo.validateInstructor();
+
     Lecture lecture = Lecture.of(request.getName(), authInfo.getInstructorId(),
         request.getClassSize());
     lectureMapper.insertLecture(lecture);
   }
 
   public List<LectureResponseDto> getLectureListByInstructorId(AuthInfo authInfo) {
-    if (!authInfo.isInstructor()) {
-      throw new RuntimeException("교수자 권한이 필요");
-    }
+    authInfo.validateInstructor();
 
     Long instructorId = authInfo.getInstructorId();
     if (instructorId == null) {
@@ -55,9 +51,7 @@ public class LectureService {
   }
 
   public List<LectureResponseDto> getLectureListByStudentId(AuthInfo authInfo) {
-    if (!authInfo.isStudent()) {
-      throw new RuntimeException("학생 권한이 필요");
-    }
+    authInfo.validateStudent();
 
     Long studentId = authInfo.getStudentId();
 
@@ -72,26 +66,34 @@ public class LectureService {
     return LectureResponseDto.from(lectures);
   }
 
-  public LectureResponseDto findLectureByCodeAndId(String lectureCode, Long lectureId,
+  public LectureResponseDto findLectureByCodeAndId(Long lectureId,
       AuthInfo authInfo) {
-    Lecture lecture = lectureMapper.findByCodeAndId(lectureCode, lectureId);
+    Lecture lecture = lectureMapper.findLectureById(lectureId);
 
     if (lecture == null) {
       throw new RuntimeException();
     }
-    if (authInfo.isInstructor()
-        && lecture.isOwnedBy(authInfo.getInstructorId())) {
-      throw new RuntimeException();
-    }// TODO: 학생 -> 수강신청한 강의인지 확인하는 로직 추가 필요
+
+    if (authInfo.isInstructor()) {
+      if (!lecture.isOwnedBy(authInfo.getInstructorId())) {
+        throw new RuntimeException("본인의 강의가 아닙니다");
+      }
+    } else if (authInfo.isStudent()) {
+      if (!lectureMapper.existEnrollmentByStudentIdAndLectureID(authInfo.getStudentId(),
+          lectureId)) {
+        throw new RuntimeException("수강 신청한 강의가 아닙니다");
+      }
+    } else {
+      throw new RuntimeException("접근 권한이 없습니다");
+    }
 
     return LectureResponseDto.of(lecture);
   }
 
   @Transactional
-  public LectureJoinResponse joinLecture(String code, AuthInfo authInfo) {
-    if (!authInfo.isStudent()) {
-      throw new RuntimeException("학생만 강의에 참여 가능");
-    }
+  public LectureJoinResponseDto joinLecture(String code, AuthInfo authInfo) {
+
+    authInfo.validateStudent();
 
     Student student = memberMapper.findStudentById(authInfo.getStudentId());
 
@@ -111,8 +113,6 @@ public class LectureService {
 
     lectureMapper.insertLectureStudent(student.getId(), lecture.getId());
 
-    return LectureJoinResponse.from(lecture);
+    return LectureJoinResponseDto.from(lecture);
   }
-
-
 }

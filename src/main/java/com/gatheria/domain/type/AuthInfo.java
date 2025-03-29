@@ -19,12 +19,23 @@ public class AuthInfo {
     this.instructorId = instructorId;
   }
 
-
   public boolean isInstructor() {
     return this.role == MemberRole.INSTRUCTOR;
   }
 
   public boolean isStudent() {
     return this.role == MemberRole.STUDENT;
+  }
+
+  public void validateInstructor() {
+    if (!isInstructor()) {
+      throw new IllegalArgumentException("강사만 접근 가능합니다.");
+    }
+  }
+
+  public void validateStudent() {
+    if (!isStudent()) {
+      throw new IllegalArgumentException("학생만 접근 가능합니다.");
+    }
   }
 }

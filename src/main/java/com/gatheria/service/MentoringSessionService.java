@@ -43,10 +43,7 @@ public class MentoringSessionService {
 
   @Transactional
   public SessionRegistrationResponseDto registerSession(Long sessionId, AuthInfo authInfo) {
-    // TODO : AuthInfo 수정 PR 반영 이후 수정 필요
-    if (!authInfo.isStudent()) {
-      throw new RuntimeException("학생만 가능함");
-    }
+    authInfo.validateStudent();
 
     MentoringSession session = mentoringSessionMapper.getSession(sessionId);
 

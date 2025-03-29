@@ -10,14 +10,14 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class LectureJoinResponse {
+public class LectureJoinResponseDto {
 
   private Long id;
   private String code;
   private String name;
 
-  public static LectureJoinResponse from(Lecture lecture) {
-    return LectureJoinResponse.builder()
+  public static LectureJoinResponseDto from(Lecture lecture) {
+    return LectureJoinResponseDto.builder()
         .id(lecture.getId())
         .code(lecture.getCode())
         .name(lecture.getName())

@@ -2,8 +2,8 @@ package com.gatheria.controller;
 
 import com.gatheria.common.annotation.Auth;
 import com.gatheria.domain.type.AuthInfo;
-import com.gatheria.dto.request.LectureJoinRequest;
-import com.gatheria.dto.response.LectureJoinResponse;
+import com.gatheria.dto.request.LectureJoinRequestDto;
+import com.gatheria.dto.response.LectureJoinResponseDto;
 import com.gatheria.dto.response.LectureResponseDto;
 import com.gatheria.service.LectureService;
 import java.util.List;
@@ -34,11 +34,10 @@ public class StudentLectureController {
   }
 
   @PostMapping("/join")
-  public ResponseEntity<LectureJoinResponse> joinLecture(@RequestBody LectureJoinRequest request,
+  public ResponseEntity<LectureJoinResponseDto> joinLecture(
+      @RequestBody LectureJoinRequestDto request,
       @Auth AuthInfo authInfo) {
-    LectureJoinResponse response = lectureService.joinLecture(request.getCode(), authInfo);
+    LectureJoinResponseDto response = lectureService.joinLecture(request.getCode(), authInfo);
     return ResponseEntity.ok(response);
   }
-
-
 }
