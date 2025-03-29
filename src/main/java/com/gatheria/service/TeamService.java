@@ -203,9 +203,7 @@ public class TeamService {
       throw new IllegalArgumentException("수업을 찾을 수 없습니다");
     }
 
-    if (!authInfo.isInstructor()) {
-      throw new IllegalArgumentException("접근 권한이 없습니다 (역할 아님)");
-    }
+    authInfo.validateInstructor();
 
     if (!Objects.equals(lecture.getInstructorId(), authInfo.getInstructorId())) {
       throw new IllegalArgumentException("해당 수업에 대한 접근 권한이 없습니다");
@@ -214,9 +212,8 @@ public class TeamService {
 
 
   private void validateLectureAccessForStudent(long lectureId, AuthInfo authInfo) {
-    if (!authInfo.isStudent()) {
-      throw new IllegalArgumentException("접근 권한이 없습니다 (역할 아님)");
-    }
+
+    authInfo.validateStudent();
 
     boolean isEnrolled = lectureMapper.existEnrollmentByStudentIdAndLectureID(
         authInfo.getStudentId(), lectureId);
