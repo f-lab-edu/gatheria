@@ -47,10 +47,7 @@ public class MentoringSessionService {
   @Transactional
   public MentoringSessionRegistrationResponseDto registerSession(Long sessionId,
       AuthInfo authInfo, LocalDateTime requestAt) {
-    if (!authInfo.isStudent()) {
-      throw new RuntimeException("학생만 가능함");
-    }
-
+    authInfo.validateStudent();
     MentoringSession session = mentoringSessionMapper.getSession(sessionId);
 
     // 존재하지 않는 멘토링
