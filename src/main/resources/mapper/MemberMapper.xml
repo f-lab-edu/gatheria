@@ -75,21 +75,6 @@
                 WHERE id = #{id})
   </update>
 
-
-  <select id="findStudentInfoMapByIds" resultType="com.gatheria.dto.StudentInfoResponseDto">
-    SELECT
-    s.id AS studentId,
-    m.name,
-    m.email
-    FROM students s
-    JOIN members m ON s.member_id = m.id
-    WHERE s.id IN
-    <foreach collection="studentIds" item="id" open="(" separator="," close=")">
-      #{id}
-    </foreach>
-  </select>
-
-
   <select id="findStudentInfoMapByIds"
     resultType="com.gatheria.dto.response.StudentInfoResponseDto">
     SELECT
@@ -103,6 +88,5 @@
       #{id}
     </foreach>
   </select>
-
-
+  
 </mapper>
