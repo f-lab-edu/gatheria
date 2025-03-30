@@ -70,5 +70,6 @@ dist-ssr
 db/mysql/data/
 
 
-secrets.sh
+script/concurrency-tests/secrets.sh
 script/summary.json
+script/concurrency-tests/results

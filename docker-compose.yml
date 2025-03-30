@@ -5,12 +5,10 @@ services:
       MYSQL_DATABASE: gatheria
       MYSQL_ROOT_PASSWORD: 1234
       TZ: 'Asia/Seoul'
-    command:
-      - --character-set-server=utf8mb4
-      - --collation-server=utf8mb4_unicode_ci
     volumes:
       - ./db/mysql/data:/var/lib/mysql
       - ./db/mysql/init:/docker-entrypoint-initdb.d
+      - ./db/mysql/my.cnf:/etc/mysql/conf.d/custom.cnf
     ports:
       - "3306:3306"
     deploy:
@@ -28,7 +26,9 @@ services:
     container_name: mysql-exporter
     image: prom/mysqld-exporter
     command:
-      '--config.my-cnf=/etc/mysql/exporter.cnf'
+      - '--config.my-cnf=/etc/mysql/exporter.cnf'
+      - "--collect.global_status"
+      - "--collect.info_schema.innodb_metrics"
     volumes:
       - ./config/exporter.cnf:/etc/mysql/exporter.cnf:ro
     ports:

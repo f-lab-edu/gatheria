@@ -3,42 +3,52 @@ package com.gatheria.domain;
 import com.gatheria.domain.type.MentoringStatus;
 import java.time.LocalDateTime;
 import java.util.Objects;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class MentoringSession {
 
   private Long id;
-  private final String title;
-  private final String mentorName;
-  private final LocalDateTime sessionDate;
-  private final LocalDateTime waitingStartDate;
-  private final LocalDateTime waitingEndDate;
-  private final Integer maxParticipants;
+  private String title;
+  private String mentorName;
+  private LocalDateTime sessionDate;
+  private LocalDateTime waitingStartDate;
+  private LocalDateTime waitingEndDate;
+  private Integer maxParticipants;
   private Integer currentParticipants;
   private MentoringStatus status;
-  private final LocalDateTime createdAt;
+  private LocalDateTime createdAt;
   private LocalDateTime updatedAt;
 
-  private MentoringSession(String title, String mentorName, LocalDateTime sessionDate,
-      LocalDateTime waitingStartDate, LocalDateTime waitingEndDate, Integer maxParticipants) {
-    this.title = title;
-    this.mentorName = mentorName;
-    this.sessionDate = sessionDate;
-    this.waitingStartDate = waitingStartDate;
-    this.waitingEndDate = waitingEndDate;
-    this.maxParticipants = maxParticipants;
-    this.currentParticipants = 0;
-    this.status = MentoringStatus.SCHEDULED;
-    this.createdAt = LocalDateTime.now();
-    this.updatedAt = LocalDateTime.now();
+  public MentoringSession(Long id, String title, String mentorName,
+      LocalDateTime sessionDate, LocalDateTime waitingStartDate,
+      LocalDateTime waitingEndDate, Integer maxParticipants) {
+    this(id, title, mentorName, sessionDate, waitingStartDate,
+        waitingEndDate, maxParticipants, 0, MentoringStatus.SCHEDULED,
+        LocalDateTime.now(), LocalDateTime.now());
   }
-
 
   public static MentoringSession of(String title, String mentorName, LocalDateTime sessionDate,
       LocalDateTime waitingStartDate, LocalDateTime waitingEndDate, Integer maxParticipants) {
-    return new MentoringSession(title, mentorName, sessionDate, waitingStartDate, waitingEndDate,
-        maxParticipants);
+    return new MentoringSession(
+        null,
+        title,
+        mentorName,
+        sessionDate,
+        waitingStartDate,
+        waitingEndDate,
+        maxParticipants,
+        0,
+        MentoringStatus.SCHEDULED,
+        LocalDateTime.now(),
+        LocalDateTime.now()
+    );
   }
 
   public void incrementCurrentParticipants() {
