@@ -28,6 +28,7 @@ logging:
     org:
       springframework:
         security: DEBUG
+      mybatis: DEBUG
 
 management:
   endpoints:

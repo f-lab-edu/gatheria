@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gatheria.mapper.TeamMapper">
+
+
+  <!-- 팀 목록 조회 -->
+  <select id="findTeamsByLectureId" resultType="com.gatheria.domain.Team">
+    SELECT *
+    FROM teams
+    WHERE lecture_id = #{lectureId}
+  </select>
+
+  <!-- 단일 팀 조회 -->
+  <select id="findTeamByTeamId" resultType="com.gatheria.domain.Team">
+    SELECT *
+    FROM teams
+    WHERE id = #{teamId}
+  </select>
+
+  <!-- 팀 저장 (단건) -->
+  <insert id="saveTeamMember" parameterType="com.gatheria.domain.TeamMember" useGeneratedKeys="true"
+    keyProperty="id">
+    INSERT INTO team_members (team_id, student_id, lecture_id, created_at, updated_at)
+    VALUES (#{teamId}, #{studentId}, #{lectureId}, NOW(), NOW())
+  </insert>
+
+  <!-- 팀 저장 (일괄 삽입) -->
+  <insert id="saveTeamMembers">
+    INSERT INTO team_members (team_id, student_id, lecture_id, created_at, updated_at)
+    VALUES
+    <foreach collection="teamMembers" item="member" separator=",">
+      (#{member.teamId}, #{member.studentId}, #{member.lectureId}, NOW(), NOW())
+    </foreach>
+  </insert>
+
+  <!-- 팀 업데이트 -->
+  <update id="updateTeamMember" parameterType="com.gatheria.domain.TeamMember">
+    UPDATE team_members
+    SET team_id    = #{teamId},
+        updated_at = NOW()
+    WHERE id = #{id}
+  </update>
+
+  <!-- 팀 멤버 조회: lectureId 기준 -->
+  <select id="findTeamMembersByLectureId" resultType="com.gatheria.domain.TeamMember">
+    SELECT *
+    FROM team_members
+    WHERE lecture_id = #{lectureId}
+  </select>
+
+  <!-- 팀 멤버 조회: teamId 기준 -->
+  <select id="findTeamMembersByTeamId" resultType="com.gatheria.domain.TeamMember">
+    SELECT *
+    FROM team_members
+    WHERE team_id = #{teamId}
+  </select>
+
+  <!-- 특정 학생의 팀 멤버 정보 (lectureId + studentId) -->
+  <select id="findTeamMemberByLectureIdAndStudentId" resultType="com.gatheria.domain.TeamMember">
+    SELECT *
+    FROM team_members
+    WHERE lecture_id = #{lectureId}
+      AND student_id = #{studentId}
+  </select>
+
+  <!-- 특정 학생의 팀 멤버 정보 (studentId + lectureId) 중복 대비용 -->
+  <select id="findTeamMemberByStudentIdAndLectureId" resultType="com.gatheria.domain.TeamMember">
+    SELECT *
+    FROM team_members
+    WHERE student_id = #{studentId}
+      AND lecture_id = #{lectureId}
+  </select>
+
+  <!-- 팀 목록 저장 -->
+  <insert id="saveTeams">
+    INSERT INTO teams (name, lecture_id, created_at, updated_at)
+    VALUES
+    <foreach collection="newTeams" item="team" separator=",">
+      (#{team.name}, #{team.lectureId}, NOW(), NOW())
+    </foreach>
+  </insert>
+
+  <insert id="upsertTeamMember">
+    INSERT INTO team_members (team_id, student_id, lecture_id)
+    VALUES (#{teamId}, #{studentId}, #{lectureId})
+    ON DUPLICATE KEY UPDATE team_id    = VALUES(team_id),
+                            updated_at = CURRENT_TIMESTAMP
+  </insert>
+</mapper>

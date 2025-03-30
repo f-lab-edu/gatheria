@@ -33,8 +33,7 @@ public class MemberController {
     InstructorRegisterResponseDto response = memberService.register(request);
     return ResponseEntity.ok(response);
   }
-
-
+  
   @PostMapping("/student/register")
   public ResponseEntity<StudentRegisterResponseDto> registerUser(
       @RequestBody StudentRegisterRequestDto request) {

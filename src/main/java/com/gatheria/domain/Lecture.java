@@ -3,30 +3,33 @@ package com.gatheria.domain;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
-public class Lecture {
+@SuperBuilder
+public class Lecture extends BaseEntity {
 
-  private Long id;
   private String name;
   private String code;
   private Long instructorId;
   private Integer classSize;
-  private LocalDateTime createdAt;
-  private LocalDateTime updatedAt;
+
+  protected Lecture(Long id, LocalDateTime createdAt, LocalDateTime updatedAt, String name,
+      String code, Long instructorId, Integer classSize) {
+    super(id, createdAt, updatedAt);
+    this.name = name;
+    this.code = code;
+    this.instructorId = instructorId;
+    this.classSize = classSize;
+  }
 
   private Lecture(String name, Long instructorId, Integer classSize) {
+    super(null, LocalDateTime.now(), LocalDateTime.now());
     this.name = name;
     this.code = generateCode();
     this.instructorId = instructorId;
     this.classSize = classSize;
-    this.createdAt = LocalDateTime.now();
-    this.updatedAt = LocalDateTime.now();
   }
 
   private String generateCode() {
