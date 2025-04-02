@@ -12,12 +12,14 @@ import com.gatheria.dto.response.MentoringSessionResponseDto;
 import com.gatheria.mapper.MentoringSessionMapper;
 import java.time.LocalDateTime;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Slf4j
 public class MentoringSessionService {
 
   private final MentoringSessionMapper mentoringSessionMapper;
@@ -47,28 +49,23 @@ public class MentoringSessionService {
   @Transactional
   public MentoringSessionRegistrationResponseDto registerSession(Long sessionId,
       AuthInfo authInfo, LocalDateTime requestAt) {
-    if (!authInfo.isStudent()) {
-      throw new RuntimeException("학생만 가능함");
-    }
+    authInfo.validateStudent();
 
-    MentoringSession session = mentoringSessionMapper.getSession(sessionId);
+    MentoringSession session = mentoringSessionMapper.getSessionForUpdate(sessionId);
 
-    // 존재하지 않는 멘토링
     if (session == null) {
       return MentoringSessionRegistrationResponseDto.fail("해당 세션이 존재x.", HttpStatus.NOT_FOUND);
     }
 
-    // 이미 등록된 멘토링인지 확인
     SessionParticipant existing = mentoringSessionMapper.findLatestBySessionAndStudent(sessionId,
         authInfo.getStudentId());
 
-    // 이미 기록 존재 & 등록된 상태
     if (existing != null && SessionParticipantStatus.REGISTERED == existing.getStatus()) {
       return MentoringSessionRegistrationResponseDto.fail("이미 등록된 세션입니다.", HttpStatus.CONFLICT);
     }
 
-    // 현재 정원 초과인 상태인지 체크
     if (session.getCurrentParticipants() >= session.getMaxParticipants()) {
+
       SessionParticipant participant = SessionParticipant.of(sessionId, authInfo.getStudentId(),
           requestAt);
       participant.reject();
@@ -91,10 +88,11 @@ public class MentoringSessionService {
     SessionParticipant participant = SessionParticipant.of(sessionId, authInfo.getStudentId(),
         requestAt);
     participant.completeRegistration();
-    mentoringSessionMapper.insertParticipant(participant); // 참여자 정보 저장(로그 참여자리스트)
 
-    session.incrementCurrentParticipants(); // 현재 참여자 수 증가
-    mentoringSessionMapper.updateSession(session); // 멘토링 세션 테이블 저장(상태랑 숫자)
+    session.incrementCurrentParticipants();
+    mentoringSessionMapper.updateSession(session);
+
+    mentoringSessionMapper.insertParticipant(participant);
 
     return MentoringSessionRegistrationResponseDto.success(
         session.getId(),
