@@ -12,14 +12,12 @@ import com.gatheria.dto.response.MentoringSessionResponseDto;
 import com.gatheria.mapper.MentoringSessionMapper;
 import java.time.LocalDateTime;
 import java.util.List;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@Slf4j
 public class MentoringSessionService {
 
   private final MentoringSessionMapper mentoringSessionMapper;
