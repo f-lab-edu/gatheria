@@ -4,7 +4,7 @@
 <mapper namespace="com.gatheria.mapper.AuthMapper">
 
   <resultMap id="StudentResultMap" type="com.gatheria.domain.Student">
-    <id property="id" column="student_id"/>
+    <id property="id" column="id"/>
     <result property="email" column="email"/>
     <result property="password" column="password"/>
     <result property="name" column="name"/>
@@ -13,7 +13,7 @@
   </resultMap>
 
   <resultMap id="InstructorResultMap" type="com.gatheria.domain.Instructor">
-    <id property="id" column="instructor_id"/>
+    <id property="id" column="id"/>
     <result property="email" column="email"/>
     <result property="password" column="password"/>
     <result property="name" column="name"/>
@@ -23,14 +23,15 @@
   </resultMap>
 
   <select id="findStudentByEmail" parameterType="string" resultMap="StudentResultMap">
-    SELECT members.*, students.id as student_id
+    SELECT members.*
     FROM members
            JOIN students ON members.id = students.member_id
     WHERE members.email = #{email}
   </select>
 
   <select id="findInstructorByEmail" parameterType="string" resultMap="InstructorResultMap">
-    SELECT members.*, instructors.id as instructor_id, instructors.affiliation
+
+    SELECT members.*, instructors.affiliation
     FROM members
            JOIN instructors ON members.id = instructors.member_id
     WHERE members.email = #{email}
