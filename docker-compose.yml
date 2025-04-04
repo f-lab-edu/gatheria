@@ -58,6 +58,8 @@ services:
         reservations:
           cpus: '1.0'
           memory: 1024M
+    volumes:
+      - ./logs:/app/logs
     networks:
       - gatheria_network
 
@@ -68,6 +70,14 @@ services:
     container_name: react-app
     ports:
       - "3000:80"
+    networks:
+      - gatheria_network
+
+  redis:
+    image: redis:6.2
+    container_name: redis
+    ports:
+      - "6379:6379"
     networks:
       - gatheria_network
 

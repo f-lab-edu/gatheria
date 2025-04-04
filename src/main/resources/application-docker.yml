@@ -18,6 +18,9 @@ spring:
     password: 1234
     driver-class-name: com.mysql.cj.jdbc.Driver
 
+    hikari:
+      leak-detection-threshold: 2000
+
 mybatis:
   mapper-locations: classpath:mapper/*.xml
   configuration:
@@ -25,16 +28,20 @@ mybatis:
 
 logging:
   level:
+    com.zaxxer.hikari: DEBUG
     org:
       springframework:
-        security: DEBUG
-      mybatis: DEBUG
+        security: INFO
+      mybatis: INFO
+      org.springframework.web: DEBUG
+      org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping: TRACE
+
 
 management:
   endpoints:
     web:
       exposure:
-        include: prometheus
+        include: '*'
 
   endpoint:
     prometheus:

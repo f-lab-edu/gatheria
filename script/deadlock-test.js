@@ -1,138 +1,144 @@
 import http from 'k6/http';
-import {check, sleep} from 'k6';
-
-function randomIntBetween(min, max) {
-  return Math.floor(Math.random() * (max - min + 1) + min);
-}
+import {check} from 'k6';
 
 export let options = {
   scenarios: {
-    deadlock_scenario: {
-      executor: 'ramping-arrival-rate',
-      startRate: 1,
-      timeUnit: '1s',
-      preAllocatedVUs: 100,
-      maxVUs: 100,
-      stages: [
-        {target: 10, duration: '5s'},
-        {target: 55, duration: '5s'},
-        {target: 100, duration: '5s'},
-        {target: 100, duration: '10s'},
-        {target: 0, duration: '5s'}
-      ],
-    }
+    wave1: {
+      executor: 'per-vu-iterations',
+      vus: 40,
+      iterations: 1,
+      startTime: '0s',
+      maxDuration: '10s',
+    },
+    wave2: {
+      executor: 'per-vu-iterations',
+      vus: 40,
+      iterations: 1,
+      startTime: '1s',
+      maxDuration: '10s',
+    },
+    wave3: {
+      executor: 'per-vu-iterations',
+      vus: 40,
+      iterations: 1,
+      startTime: '2s',
+      maxDuration: '10s',
+    },
+    wave4: {
+      executor: 'per-vu-iterations',
+      vus: 40,
+      iterations: 1,
+      startTime: '3s',
+      maxDuration: '10s',
+    },
+    wave5: {
+      executor: 'per-vu-iterations',
+      vus: 40,
+      iterations: 1,
+      startTime: '4s',
+      maxDuration: '10s',
+    },
+    wave6: {
+      executor: 'per-vu-iterations',
+      vus: 40,
+      iterations: 1,
+      startTime: '5s',
+      maxDuration: '10s',
+    },
   },
-  thresholds: {
-    http_req_failed: ['rate<0.3'],
-    http_req_duration: ['p(95)<3000'],
-  },
+  // 기본 요약 통계를 표시하기 위한 설정
+  summaryTrendStats: ['avg', 'min', 'med', 'max', 'p(90)', 'p(95)'],
 };
 
-const SESSION_ID = 2;
+// 응답 시간 데이터를 수집할 배열
+let responseTimes = [];
+let waveStartTimes = {};
+let waveCompleteCounts = {
+  wave1: 0,
+  wave2: 0,
+  wave3: 0,
+  wave4: 0,
+  wave5: 0,
+  wave6: 0
+};
 
 export default function () {
-  const id = __VU; // VU 1~100 → student1~student100 1:1 매핑
+  const id = __VU;
+  const wave = __ENV.SCENARIO;
+
+  // 웨이브 시작 시간 기록 (첫 요청시)
+  if (!waveStartTimes[wave]) {
+    waveStartTimes[wave] = new Date().getTime();
+  }
 
   const student = {
     email: `student${id}@gatheria.com`,
     password: 'Password123!',
   };
 
-  // 로그인
-  const loginRes = http.post(
+  const start = new Date().getTime();
+  const res = http.post(
       'http://host.docker.internal:8080/api/auth/student/login',
       JSON.stringify(student),
-      {headers: {'Content-Type': 'application/json'}}
-  );
-
-  check(loginRes, {
-    '로그인 성공': (res) => res.status === 200,
-  });
-
-  if (loginRes.status !== 200) {
-    console.error(
-        `로그인 실패: 학생${id}, 상태 ${loginRes.status}, 응답: ${loginRes.body}`);
-    return;
-  }
-
-  const token = loginRes.json('accessToken');
-
-  // 그룹별 요청 타이밍 조정
-  if (id <= 20) {
-    sleep(randomIntBetween(0, 200) / 1000);
-  } else if (id <= 50) {
-    const targetTime = new Date().getTime() + 100;
-    const now = new Date().getTime();
-    if (targetTime > now) {
-      sleep((targetTime - now) / 1000);
-    }
-  } else {
-    sleep(randomIntBetween(300, 500) / 1000);
-  }
-
-  // 세션 등록 요청
-  const startTime = new Date().getTime();
-  const joinRes = http.post(
-      `http://host.docker.internal:8080/api/mentoring/${SESSION_ID}/join`,
-      null,
       {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        tags: {name: '멘토링_세션_등록'},
+        headers: {'Content-Type': 'application/json'},
       }
   );
-  const responseTime = new Date().getTime() - startTime;
+  const duration = new Date().getTime() - start;
 
-  const hasDeadlock =
-      joinRes.body.includes('Deadlock') ||
-      joinRes.body.includes('transaction') ||
-      (joinRes.status === 500 && joinRes.body.includes('try restarting'));
-
-  if (hasDeadlock) {
-    console.error(
-        `[⚠️ 데드락 감지] 학생${id}, 응답시간: ${responseTime}ms, 응답: ${joinRes.body.substring(
-            0, 200)}`
-    );
-  } else if (joinRes.status === 500) {
-    console.error(
-        `[❌ 서버 오류] 학생${id}, 응답시간: ${responseTime}ms, 응답: ${joinRes.body.substring(
-            0, 100)}`
-    );
-  } else if (joinRes.status === 200) {
-    console.log(`[✅ 등록 성공] 학생${id}, 응답시간: ${responseTime}ms`);
-  } else if (joinRes.status === 409) {
-    console.log(
-        `[⚙️ 등록 불가] 학생${id}, 응답시간: ${responseTime}ms, 사유: ${joinRes.body.substring(
-            0, 50)}`
-    );
-  } else {
-    console.log(
-        `[❓ 기타 응답] 학생${id}, 상태: ${joinRes.status}, 응답시간: ${responseTime}ms`
-    );
-  }
-
-  check(joinRes, {
-    '세션 등록 처리됨': (res) => res.status === 200 || res.status === 409,
-    '데드락 없음': (res) => !hasDeadlock,
+  // 응답 시간 데이터 수집
+  responseTimes.push({
+    vu: id,
+    wave: wave,
+    time: duration,
+    status: res.status
   });
 
-  // 성공한 경우 상태 확인
-  if (joinRes.status === 200) {
-    sleep(randomIntBetween(100, 300) / 1000);
+  const success = check(res, {
+    '로그인 성공': (r) => r.status === 200,
+  });
 
-    const checkRes = http.get(
-        `http://host.docker.internal:8080/api/mentoring/sessions/${SESSION_ID}/status`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-    );
+  // 웨이브별 완료 카운트 증가
+  waveCompleteCounts[wave]++;
 
-    check(checkRes, {
-      '등록 상태 확인 성공': (res) => res.status === 200,
-    });
+  // 개별 VU 로그는 출력하지 않음 - 요약 데이터만 수집
+}
+
+export function handleSummary(data) {
+  // 표준 요약 통계 출력
+  console.log("\n--- 테스트 완료 ---");
+
+  // 웨이브별 완료 카운트 및 평균 응답 시간 출력
+  let waveStats = {};
+
+  for (const wave in waveCompleteCounts) {
+    const waveResponses = responseTimes.filter(r => r.wave === wave);
+    const avgTime = waveResponses.reduce((sum, r) => sum + r.time, 0)
+        / (waveResponses.length || 1);
+    const successCount = waveResponses.filter(r => r.status === 200).length;
+
+    waveStats[wave] = {
+      total: waveCompleteCounts[wave],
+      success: successCount,
+      avgTime: Math.round(avgTime)
+    };
+
+    console.log(`${wave}: 완료 ${waveCompleteCounts[wave]}개, 성공률 ${Math.round(
+        successCount / waveCompleteCounts[wave] * 100)}%, 평균응답시간 ${Math.round(
+        avgTime)}ms`);
   }
+
+  // CSV 파일로 데이터 출력 (그래프 생성용)
+  let csvContent = "wave,vus,success,failure,avg_time\n";
+
+  for (const wave in waveStats) {
+    const stats = waveStats[wave];
+    csvContent += `${wave},${options.scenarios[wave].vus},${stats.success},${stats.total
+    - stats.success},${stats.avgTime}\n`;
+  }
+
+  return {
+    "stdout": data.stdout,
+    "./test-results.csv": csvContent
+  };
 }

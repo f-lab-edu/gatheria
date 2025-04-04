@@ -58,8 +58,8 @@ export SCRIPT=$SCRIPT_NAME
 
 START_TIME=$(date +%s)
 echo -e "${BLUE}Docker Compose로 K6 실행 중...${NC}"
-docker compose -f "$DOCKER_COMPOSE_FILE" up --abort-on-container-exit
-END_TIME=$(date +%s)
+K6_LOG_PATH="$RESULT_DIR/k6_output_$TIMESTAMP.log"
+docker compose -f "$DOCKER_COMPOSE_FILE" up --abort-on-container-exit | tee "$K6_LOG_PATH"END_TIME=$(date +%s)
 RESULT=$?
 
 # 데드락 수 측정 - AFTER
