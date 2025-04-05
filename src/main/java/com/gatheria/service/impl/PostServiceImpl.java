@@ -52,7 +52,7 @@ public class PostServiceImpl implements PostService {
   @Override
   @Transactional
   public void addAssignment(Long lectureId, AssignmentCreateRequestDto request, AuthInfo authInfo) {
-    //테스트 완료
+
     authInfo.validateInstructor();
 
     Lecture lecture = lectureMapper.findLectureById(lectureId);
@@ -165,7 +165,6 @@ public class PostServiceImpl implements PostService {
       throw new RuntimeException("해당 수업 포스터 x");
     }
 
-    // 수정 신청한 교수가 쓴거야?
     if (!notice.isInstructor(authInfo.getInstructorId())) {
       throw new RuntimeException("본인이 쓴 글만 수정 가능");
     }
@@ -197,16 +196,14 @@ public class PostServiceImpl implements PostService {
 
 
   @Override
-  public List<NoticeResponseDto> getNotices(Long lectureId, AuthInfo authInfo) {
-    //테스트 완료
+  public List<NoticeResponseDto> showNotices(Long lectureId, AuthInfo authInfo) {
     return postMapper.findAllNoticesByLectureId(lectureId).stream()
         .map(NoticeResponseDto::from)
         .collect(Collectors.toList());
   }
 
   @Override
-  public List<AssignmentResponseDto> getAssignments(Long lectureId, AuthInfo authInfo) {
-    //테스트 완료
+  public List<AssignmentResponseDto> showAssignments(Long lectureId, AuthInfo authInfo) {
     return postMapper.findAllAssignmentsByLectureId(lectureId).stream()
         .map(AssignmentResponseDto::from)
         .collect(Collectors.toList());
@@ -214,7 +211,6 @@ public class PostServiceImpl implements PostService {
 
   @Override
   public List<PostListResponseDto> showAllPosts(Long lectureId, AuthInfo authInfo) {
-    //TODO : 질문하기(동작 x)
     return postMapper.findAllPostsByLectureId(lectureId).stream()
         .map(post -> post.createListDto())
         .collect(Collectors.toList());

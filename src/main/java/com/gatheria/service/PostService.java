@@ -27,9 +27,9 @@ public interface PostService {
 
   void deleteAssignment(Long lectureId, Long postId, AuthInfo authInfo);
 
-  List<NoticeResponseDto> getNotices(Long lectureId, AuthInfo authInfo);
+  List<NoticeResponseDto> showNotices(Long lectureId, AuthInfo authInfo);
 
-  List<AssignmentResponseDto> getAssignments(Long lectureId, AuthInfo authInfo);
+  List<AssignmentResponseDto> showAssignments(Long lectureId, AuthInfo authInfo);
 
   List<PostListResponseDto> showAllPosts(Long lectureId, AuthInfo authInfo);
 

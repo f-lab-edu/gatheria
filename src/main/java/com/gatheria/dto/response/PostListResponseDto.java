@@ -21,7 +21,7 @@ public class PostListResponseDto {
   private String title;
   private LocalDateTime createdAt;
   private LocalDateTime updatedAt;
-  private LocalDateTime dueDate; //과제만 이 값을 가짐 체크
+  private LocalDateTime dueDate;
 
   public static PostListResponseDto from(Post post) {
     return post.createListDto();

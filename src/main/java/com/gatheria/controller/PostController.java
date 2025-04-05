@@ -29,8 +29,8 @@ public class PostController {
     this.postService = postService;
   }
 
-  @GetMapping()
-  public ResponseEntity<List<PostListResponseDto>> getAllPost(
+  @GetMapping
+  public ResponseEntity<List<PostListResponseDto>> showAllPost(
       @PathVariable Long lectureId,
       @Auth AuthInfo authInfo
   ) {
@@ -40,20 +40,20 @@ public class PostController {
 
 
   @GetMapping("/notices")
-  public ResponseEntity<List<NoticeResponseDto>> getAllNotices(
+  public ResponseEntity<List<NoticeResponseDto>> showAllNotices(
       @PathVariable Long lectureId,
       @Auth AuthInfo authInfo
   ) {
-    List<NoticeResponseDto> response = postService.getNotices(lectureId, authInfo);
+    List<NoticeResponseDto> response = postService.showNotices(lectureId, authInfo);
     return ResponseEntity.ok(response);
   }
 
   @GetMapping("/assignments")
-  public ResponseEntity<List<AssignmentResponseDto>> getAllAssignments(
+  public ResponseEntity<List<AssignmentResponseDto>> showAllAssignments(
       @PathVariable Long lectureId,
       @Auth AuthInfo authInfo
   ) {
-    List<AssignmentResponseDto> response = postService.getAssignments(lectureId, authInfo);
+    List<AssignmentResponseDto> response = postService.showAssignments(lectureId, authInfo);
     return ResponseEntity.ok(response);
   }
 
