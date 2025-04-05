@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gatheria.mapper.PostMapper">
+
+  <resultMap id="AssignmentResultMap" type="com.gatheria.domain.Assignment">
+    <id property="id" column="id"/>
+    <result property="lectureId" column="lecture_id"/>
+    <result property="instructorId" column="instructor_id"/>
+    <result property="type" column="type"/>
+    <result property="title" column="title"/>
+    <result property="contents" column="content"/>
+    <result property="createdAt" column="created_at"/>
+    <result property="updatedAt" column="updated_at"/>
+    <result property="dueDate" column="due_date"/>
+  </resultMap>
+
+
+  <resultMap id="PostResultMap" type="com.gatheria.domain.Post">
+    <discriminator javaType="string" column="type">
+      <case value="NOTICE" resultType="com.gatheria.domain.Notice">
+        <id property="id" column="id"/>
+        <result property="lectureId" column="lecture_id"/>
+        <result property="instructorId" column="instructor_id"/>
+        <result property="type" column="type"/>
+        <result property="title" column="title"/>
+        <result property="contents" column="content"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+      </case>
+      <case value="ASSIGNMENT" resultType="com.gatheria.domain.Assignment">
+        <id property="id" column="id"/>
+        <result property="lectureId" column="lecture_id"/>
+        <result property="instructorId" column="instructor_id"/>
+        <result property="type" column="type"/>
+        <result property="title" column="title"/>
+        <result property="contents" column="content"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="dueDate" column="due_date"/>
+      </case>
+    </discriminator>
+  </resultMap>
+
+  <select id="findAssignmentById" resultMap="AssignmentResultMap">
+    SELECT p.*, a.due_date
+    FROM posts p
+           JOIN assignment_details a ON p.id = a.post_id
+    WHERE p.id = #{id}
+      AND p.type = 'ASSIGNMENT'
+  </select>
+
+  <select id="findAllAssignmentsByLectureId" resultMap="AssignmentResultMap">
+    SELECT p.*, a.due_date
+    FROM posts p
+           JOIN assignment_details a ON p.id = a.post_id
+    WHERE p.lecture_id = #{lectureId}
+      AND p.type = 'ASSIGNMENT'
+    ORDER BY p.created_at DESC
+  </select>
+
+
+  <select id="findAllPostsByLectureId" resultMap="PostResultMap">
+    SELECT p.*, a.due_date
+    FROM posts p
+           LEFT JOIN assignment_details a ON p.id = a.post_id
+    WHERE p.lecture_id = #{lectureId}
+    ORDER BY p.created_at DESC
+  </select>
+</mapper>
