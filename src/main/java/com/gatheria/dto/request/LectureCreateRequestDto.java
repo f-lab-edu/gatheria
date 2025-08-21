@@ -10,5 +10,4 @@ import lombok.NoArgsConstructor;
 public class LectureCreateRequestDto {
 
   private String name;
-  private Integer classSize;
 }

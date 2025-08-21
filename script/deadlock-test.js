@@ -37,8 +37,7 @@ export default function () {
     email: `student${id}@gatheria.com`,
     password: 'Password123!',
   };
-
-  // 로그인
+  
   const loginRes = http.post(
       'http://host.docker.internal:8080/api/auth/student/login',
       JSON.stringify(student),

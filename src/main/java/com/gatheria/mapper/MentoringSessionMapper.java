@@ -39,7 +39,6 @@ public interface MentoringSessionMapper {
   @Select("SELECT * FROM mentoring_sessions WHERE id = #{sessionId}")
   MentoringSession getSession(Long sessionId);
 
-  // get session + 배타적 락
   @Select("SELECT * FROM mentoring_sessions WHERE id = #{sessionId} FOR UPDATE")
   MentoringSession getSessionForUpdate(Long sessionId);
 

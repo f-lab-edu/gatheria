@@ -28,8 +28,7 @@ public class LectureService {
   public void createLecture(LectureCreateRequestDto request, AuthInfo authInfo) {
     authInfo.validateInstructor();
 
-    Lecture lecture = Lecture.of(request.getName(), authInfo.getInstructorId(),
-        request.getClassSize());
+    Lecture lecture = Lecture.of(request.getName(), authInfo.getInstructorId());
     lectureMapper.insertLecture(lecture);
   }
 
